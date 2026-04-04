@@ -324,7 +324,8 @@
           <div class="comp-label">Inputs</div>
           <div class="comp-text">
             <code>bridge_cmd_t</code> — duty (float 0–1), enable (bool), brake (bool)<br>
-            <code>gate_kill</code> — direct fault line from Fault_Responder, checked each cycle before any PWM write
+            <code>gate_kill</code> (software) — secondary flag checked each cycle before PWM write<br>
+            LTC7066 EN pin — primary hardware gate kill, owned by fault_responder/watchdog GPIO, independent of this SWC
           </div>
         </div>
         <div class="comp-section">
@@ -413,11 +414,20 @@
 
     <div class="iface-row">
       <div class="iface-cell">
-        <div class="iface-name">gate_kill</div>
-        <div class="iface-sub">atomic bool / GPIO</div>
+        <div class="iface-name">LTC7066 EN GPIO</div>
+        <div class="iface-sub">active-low hardware pin</div>
       </div>
-      <div class="iface-cell">Fault_Responder → bridge_driver ×N</div>
-      <div class="iface-cell">Checked at top of each BridgeDriver update before any PWM write. Can also be a direct GPIO to LTC7066 enable pin for hardware-speed response independent of firmware.</div>
+      <div class="iface-cell">fault_responder / watchdog → LTC7066 EN pin (hardware)</div>
+      <div class="iface-cell">Primary gate kill path. fault_responder and control_loop_watchdog own a GPIO wired to all LTC7066 EN pins (or per-bridge independently). Pulling EN low disables both gate outputs immediately at hardware speed — independent of Core 1 firmware state. All four EN pins may share one GPIO for simultaneous kill, or be independent for phase-selective shutdown. Single GPIO is simpler and sufficient for most fault responses.</div>
+    </div>
+
+    <div class="iface-row">
+      <div class="iface-cell">
+        <div class="iface-name">gate_kill (software)</div>
+        <div class="iface-sub">atomic bool</div>
+      </div>
+      <div class="iface-cell">fault_responder → bridge_driver (software, belt-and-suspenders)</div>
+      <div class="iface-cell">Checked by bridge_driver at top of each PWM write cycle. Secondary path only — the hardware EN GPIO is the authoritative gate kill. Software gate_kill provides graceful shutdown for non-emergency cases where the control loop is still running.</div>
     </div>
 
   </div>

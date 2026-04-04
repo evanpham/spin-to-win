@@ -22,6 +22,7 @@
     --purple: #a070ff;
     --core0: #1a2a3a;
     --core1: #1a2e22;
+    --todo: #ff6a30;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,323 +37,107 @@
     min-height: 100vh;
   }
 
-  header {
-    border-bottom: 1px solid var(--border2);
-    padding-bottom: 20px;
-    margin-bottom: 36px;
-  }
-
-  header h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: #fff;
-  }
-
-  header p {
-    color: var(--muted);
-    margin-top: 6px;
-    font-size: 12px;
-  }
+  header { border-bottom: 1px solid var(--border2); padding-bottom: 20px; margin-bottom: 36px; }
+  header h1 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; color: #fff; }
+  header p  { color: var(--muted); margin-top: 6px; font-size: 12px; }
 
   .tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   }
-  .tag-rt { background: #1a2e22; color: var(--accent2); border: 1px solid #2a4e3a; }
-  .tag-mon { background: #1a2a3a; color: var(--accent); border: 1px solid #2a3a5a; }
-  .tag-safe { background: #2e1a1a; color: var(--danger); border: 1px solid #4e2a2a; }
-  .tag-ctrl { background: #2a1a3a; color: var(--purple); border: 1px solid #3e2a5a; }
-  .tag-core0 { background: #1a1e2a; color: var(--warn); border: 1px solid #3a3010; }
+  .tag-rt   { background: #1a2e22; color: var(--accent2); border: 1px solid #2a4e3a; }
+  .tag-mon  { background: #1a2a3a; color: var(--accent);  border: 1px solid #2a3a5a; }
+  .tag-safe { background: #2e1a1a; color: var(--danger);  border: 1px solid #4e2a2a; }
+  .tag-ctrl { background: #2a1a3a; color: var(--purple);  border: 1px solid #3e2a5a; }
+  .tag-core0{ background: #1a1e2a; color: var(--warn);    border: 1px solid #3a3010; }
 
-  section {
-    margin-bottom: 48px;
-  }
-
+  section { margin-bottom: 48px; }
   section h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
+    color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
   }
 
-  /* === DUAL CORE MAP === */
-  .core-map {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .core {
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
+  .core-map { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .core { border: 1px solid var(--border2); border-radius: 6px; overflow: hidden; }
   .core-header {
-    padding: 8px 14px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 8px 14px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px;
   }
-
-  .core0 .core-header { background: var(--core0); color: var(--accent); border-bottom: 1px solid #1e3a5a; }
+  .core0 .core-header { background: var(--core0); color: var(--accent);  border-bottom: 1px solid #1e3a5a; }
   .core1 .core-header { background: var(--core1); color: var(--accent2); border-bottom: 1px solid #1e4a32; }
-
   .core-body { padding: 12px; background: var(--surface); }
 
   .task-card {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    position: relative;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 5px; padding: 10px 12px; margin-bottom: 8px; position: relative;
   }
-
   .task-card:last-child { margin-bottom: 0; }
+  .task-name   { font-weight: 700; font-size: 12px; color: #fff; margin-bottom: 3px; }
+  .task-meta   { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+  .task-detail { font-size: 11px; color: #8a97a8; line-height: 1.5; }
 
-  .task-name {
-    font-weight: 700;
-    font-size: 12px;
-    color: #fff;
-    margin-bottom: 3px;
+  .swc-list { margin-top: 7px; padding-left: 0; list-style: none; }
+  .swc-list li {
+    font-size: 10px; color: #60a8c0; padding: 2px 0;
+    display: flex; gap: 6px; align-items: baseline;
   }
+  .swc-list li::before { content: "⬦"; color: #304860; font-size: 9px; flex-shrink: 0; }
 
-  .task-meta {
-    color: var(--muted);
-    font-size: 11px;
-    margin-bottom: 6px;
-  }
-
-  .task-detail {
-    font-size: 11px;
-    color: #8a97a8;
-    line-height: 1.5;
-  }
-
-  .prio-bar {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    border-radius: 5px 0 0 5px;
-  }
+  .prio-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 5px 0 0 5px; }
   .prio-5 { background: var(--danger); }
   .prio-4 { background: var(--warn); }
   .prio-3 { background: var(--accent); }
   .prio-2 { background: var(--accent2); }
   .prio-1 { background: var(--muted); }
+  .prio-label { font-size: 10px; color: var(--muted); float: right; margin-top: 2px; }
 
-  .prio-label {
-    font-size: 10px;
-    color: var(--muted);
-    float: right;
-    margin-top: 2px;
+  .prio-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 10px; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot  { width: 8px; height: 8px; border-radius: 2px; }
+
+  .flow-wrap {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 16px; overflow-x: auto;
   }
+  .flow-wrap svg { display: block; margin: 0 auto; }
 
-  /* === SIGNAL FLOW DIAGRAM === */
-  .flow-diagram {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 6px;
-    padding: 24px;
-    overflow-x: auto;
-  }
-
-  .flow-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 0;
-    flex-wrap: nowrap;
-    min-width: 600px;
-  }
-
-  .flow-block {
-    border-radius: 5px;
-    padding: 8px 12px;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-    position: relative;
-    min-width: 90px;
-  }
-
-  .fb-hw { background: #1a1e2a; border: 1px solid #2e3848; color: var(--muted); }
-  .fb-adc { background: #0e1f30; border: 1px solid #1e3f60; color: var(--accent); }
-  .fb-mon { background: #0e2030; border: 1px solid #1e3550; color: #80b8ff; }
-  .fb-foc { background: #1a1030; border: 1px solid #3a2060; color: var(--purple); }
-  .fb-bridge { background: #0e2820; border: 1px solid #1e4838; color: var(--accent2); }
-  .fb-fault { background: #2e1010; border: 1px solid #5e2020; color: var(--danger); }
-
-  .arrow {
-    color: var(--border2);
-    font-size: 16px;
-    padding: 0 4px;
-    flex-shrink: 0;
-  }
-
-  .arrow-down {
-    text-align: center;
-    color: var(--border2);
-    font-size: 14px;
-    line-height: 1;
-    margin: 2px 0;
-  }
-
-  .flow-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .flow-label {
-    font-size: 10px;
-    color: var(--muted);
-    text-align: center;
-    margin: 2px 0;
-    font-style: italic;
-  }
-
-  .flow-section-label {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    text-align: center;
-    margin: 16px 0 8px;
-  }
-
-  /* === MEMORY / INTERFACE TABLE === */
-  .iface-grid {
-    display: grid;
-    gap: 10px;
-  }
-
+  .iface-grid { display: grid; gap: 10px; }
   .iface-row {
-    display: grid;
-    grid-template-columns: 160px 1fr 1fr;
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    overflow: hidden;
-    font-size: 11px;
+    display: grid; grid-template-columns: 170px 1fr 1fr; gap: 1px;
+    background: var(--border); border: 1px solid var(--border);
+    border-radius: 5px; overflow: hidden; font-size: 11px;
   }
-
-  .iface-row.header {
-    background: var(--surface2);
-    border-color: var(--border2);
-  }
-
-  .iface-cell {
-    background: var(--surface);
-    padding: 8px 12px;
-  }
-
+  .iface-row.header { background: var(--surface2); border-color: var(--border2); }
+  .iface-cell { background: var(--surface); padding: 8px 12px; }
   .iface-row.header .iface-cell {
-    background: var(--surface2);
-    color: var(--muted);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 700;
+    background: var(--surface2); color: var(--muted);
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
   }
-
-  .iface-name {
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 2px;
-  }
-
-  .iface-sub {
-    color: var(--muted);
-    font-size: 10px;
-  }
+  .iface-name { font-weight: 700; color: #fff; margin-bottom: 2px; }
+  .iface-sub  { color: var(--muted); font-size: 10px; }
 
   code {
-    background: #1a2030;
-    border: 1px solid var(--border2);
-    border-radius: 3px;
-    padding: 1px 5px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: #a0c8ff;
+    background: #1a2030; border: 1px solid var(--border2); border-radius: 3px;
+    padding: 1px 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c8ff;
   }
 
-  /* === OPEN QUESTIONS === */
-  .questions {
-    display: grid;
-    gap: 8px;
-  }
-
+  .questions { display: grid; gap: 8px; }
   .question {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--warn);
-    border-radius: 0 5px 5px 0;
-    padding: 10px 14px;
-    font-size: 11px;
-    color: #aab8c8;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--warn); border-radius: 0 5px 5px 0;
+    padding: 10px 14px; font-size: 11px; color: #aab8c8;
   }
-
-  .question strong {
-    color: var(--warn);
-    display: block;
-    margin-bottom: 3px;
-    font-size: 11px;
-  }
+  .question strong { color: var(--warn); display: block; margin-bottom: 3px; font-size: 11px; }
+  .question.resolved { border-left-color: #2a5a2a; }
+  .question.resolved strong { color: var(--accent2); }
 
   .note {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 5px 5px 0;
-    padding: 10px 14px;
-    font-size: 11px;
-    color: #aab8c8;
-    margin-top: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 0 5px 5px 0;
+    padding: 10px 14px; font-size: 11px; color: #aab8c8; margin-top: 10px;
   }
-
-  .prio-legend {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .legend-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
-  }
+  .note strong { color: var(--accent); }
 
   @media (max-width: 600px) {
     .core-map { grid-template-columns: 1fr; }
@@ -363,13 +148,21 @@
 <body>
 
 <header>
-  <h1>Motor Driver — SW Architecture Sketch</h1>
-  <p>ESP32 / FreeRTOS · 4 half-bridge · 48V / 40A · Revision 0.1 (concept)</p>
+  <h1>Motor Driver — SW Architecture</h1>
+  <p>ESP32 / FreeRTOS · 4 half-bridge · 48V / 40A · Revision 0.5</p>
 </header>
 
-<!-- SECTION: DUAL CORE TASK MAP -->
+<!-- SWC vs TASK -->
 <section>
-  <h2>Dual-Core Task Map</h2>
+  <h2>SWC vs Task — Distinction</h2>
+  <div class="note">
+    <strong>Key distinction:</strong> A <strong>software component (SWC)</strong> is an abstract block — inputs, compute, published outputs — with no scheduling identity. A <strong>task</strong> is a FreeRTOS scheduling entity with its own stack and priority. Two SWCs that are rate-locked and must execute in a fixed sequence belong on the same task. Splitting them adds a context switch, IPC overhead, and phase delay for no benefit. Task boundaries below are drawn only where rate, priority, or core assignment genuinely differ.
+  </div>
+</section>
+
+<!-- TASK MAP -->
+<section>
+  <h2>Task Map</h2>
   <div class="core-map">
 
     <div class="core core1">
@@ -379,44 +172,20 @@
         <div class="task-card">
           <div class="prio-bar prio-5"></div>
           <div style="padding-left:8px">
-            <div class="task-name">ADC_Manager <span class="prio-label">PRIO 5</span></div>
-            <div class="task-meta"><span class="tag tag-rt">Realtime</span> &nbsp;1 task · both AD4115</div>
+            <div class="task-name">Task: control_loop <span class="prio-label">PRIO 5</span></div>
+            <div class="task-meta"><span class="tag tag-rt">Realtime</span> &nbsp;MCPWM carrier valley drives CONVST · CPU polling SPI · ~20 kHz · see ADC timing document</div>
             <div class="task-detail">
-              Owns SPI bus. Sequences CS lines for both devices. Triggers conversions, DMA-reads results into double-buffered <code>adc_frame_t</code>. Signals FOC_Control on each complete frame. Tracks SPI fault counters.
+              Timing is driven by the MCPWM peripheral: the carrier valley event asserts CONVST on the AD7617 via hardware output compare with no CPU involvement. The loop then polls BUSY until conversion completes (~7.5 µs), executes a CPU polling SPI transaction to read all 16 channel results (~14.4 µs worst case, 1-wire), and runs FOC math on the fresh data. foc_u_guy reads <code>fault_state_t</code> at the top of each cycle and zeroes outputs if a fault is active. Setpoints read directly from <code>setpoint_t</code>.
             </div>
-          </div>
-        </div>
-
-        <div class="task-card">
-          <div class="prio-bar prio-5"></div>
-          <div style="padding-left:8px">
-            <div class="task-name">foc_u_guy <span class="prio-label">PRIO 5</span></div>
-            <div class="task-meta"><span class="tag tag-ctrl">Current Loop</span> &nbsp;Runs every ADC frame</div>
-            <div class="task-detail">
-              Wakes on ADC frame notification. Reads <code>adc_frame_t</code>. Calls monitors (update/publish inline). Runs Clarke/Park transforms, PI controllers, inverse Park/SVM. Writes <code>bridge_cmd_t</code> to each BridgeDriver queue. Reads <code>motor_mode_t</code> from foc_u_buddy to gate loop execution.
-            </div>
-          </div>
-        </div>
-
-        <div class="task-card">
-          <div class="prio-bar prio-4"></div>
-          <div style="padding-left:8px">
-            <div class="task-name">foc_u_buddy <span class="prio-label">PRIO 4</span></div>
-            <div class="task-meta"><span class="tag tag-ctrl">State Machine</span> &nbsp;Shared task with foc_u_guy</div>
-            <div class="task-detail">
-              Motor controller state machine: idle → align → run → fault → coast. Runs as a component within the same task as foc_u_guy, called after the current loop completes each cycle. Reads <code>fault_state_t</code> and <code>motor_state_t</code> to drive transitions. Writes <code>motor_mode_t</code> (consumed by foc_u_guy) and <code>setpoint_t</code> when executing ramp profiles. Owns calibration sequences and field-weakening mode transitions.
-            </div>
-          </div>
-        </div>
-
-        <div class="task-card">
-          <div class="prio-bar prio-4"></div>
-          <div style="padding-left:8px">
-            <div class="task-name">svm_orchestrator + bridge_driver ×N <span class="prio-label">PRIO 4</span></div>
-            <div class="task-meta"><span class="tag tag-rt">Realtime</span> &nbsp;shared task · sequential execution</div>
-            <div class="task-detail">
-              svm_orchestrator receives <code>svm_cmd_t</code> (V_alpha, V_beta) from foc_u_guy, computes SVM sector and dwell times, writes all three <code>bridge_cmd_t</code> structs atomically. Each bridge_driver instance owns one half-bridge: applies dead time, checks gate_kill, writes PWM peripheral. bridge_driver is topology-agnostic and reused across motor types; svm_orchestrator is bypassed for brushed DC and replaced for stepper/SR. See <em>Bridge Driver &amp; SVM Orchestrator</em> document for full detail.
-            </div>
+            <ul class="swc-list">
+              <li>adc_manager — assert CONVST (via MCPWM output compare, hardware), poll BUSY, execute CPU polling SPI transaction (32 bytes, 40 MHz), write adc_frame_t</li>
+              <li>current_monitor — scale I_abc, filter, set fault flags</li>
+              <li>voltage_monitor — scale V_phase, V_dc, filter</li>
+              <li>rotor_observer — propagate → predict → innovate → correct; outputs θ_est, ω_est</li>
+              <li>foc_u_guy — check fault_state_t, read setpoint_t, Clarke, Park, PI(Id,Iq) → Vd, Vq</li>
+              <li>svm_orchestrator — inverse Park (dq→αβ), SVM sector + dwell → bridge_cmd_t[A,B,C]</li>
+              <li>bridge_driver ×N — check gate_kill, insert dead time, write PWM peripheral</li>
+            </ul>
           </div>
         </div>
 
@@ -430,33 +199,57 @@
         <div class="task-card">
           <div class="prio-bar prio-3"></div>
           <div style="padding-left:8px">
-            <div class="task-name">Fault_Responder <span class="prio-label">PRIO 3</span></div>
-            <div class="task-meta"><span class="tag tag-safe">Safety</span> &nbsp;Sole writer to fault register</div>
+            <div class="task-name">Task: fault_responder <span class="prio-label">PRIO 3</span></div>
+            <div class="task-meta"><span class="tag tag-safe">Safety</span> &nbsp;event-driven · blocks on task notification</div>
             <div class="task-detail">
-              Polls/pends on <code>fault_flags_t</code> (set atomically by monitors). Owns safing logic: gate disable, ramp-down command, indicator LED. Publishes <code>fault_state_t</code> for FOC state machine to read. Does not act on hardware directly except gate kill line.
+              Blocks on <code>xTaskNotifyWait</code>. Woken when any monitor sets a bit in <code>fault_flags_t</code> and calls <code>xTaskNotify</code> with <code>eSetBits</code>. Sole writer to <code>fault_state_t</code>. Executes fault response (see open questions — fault taxonomy). Primary gate kill mechanism is the LTC7066 EN GPIO (hardware-speed, independent of Core 1 firmware). Software <code>gate_kill</code> flag read by bridge_driver is a belt-and-suspenders for graceful shutdown only.
             </div>
+            <ul class="swc-list">
+              <li>fault_responder — read fault_flags_t, write fault_state_t, drive safing</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="task-card">
+          <div class="prio-bar prio-3"></div>
+          <div style="padding-left:8px">
+            <div class="task-name">Task: control_loop_watchdog <span class="prio-label">PRIO 3</span></div>
+            <div class="task-meta"><span class="tag tag-safe">Safety</span> &nbsp;Core 0 · timestamp polling · independent of Core 1</div>
+            <div class="task-detail">
+              Runs on Core 0 so it is unaffected by a Core 1 hang. Each cycle of control_loop writes <code>last_frame_time</code> (a tick count). Watchdog wakes periodically, checks <code>now − last_frame_time</code> against a threshold (~10× expected frame period). On timeout: pulls LTC7066 EN GPIO low directly (hardware gate kill, independent of Core 1), then notifies fault_responder with <code>FAULT_CONTROL_LOOP_TIMEOUT</code>. Timestamp approach preferred over active notification from control_loop — watchdog fires even if control_loop hangs before it can write the timestamp. See ADC timing document for threshold sizing.
+            </div>
+            <ul class="swc-list">
+              <li>control_loop_watchdog — poll last_frame_time, timeout → gate kill + fault notify</li>
+            </ul>
           </div>
         </div>
 
         <div class="task-card">
           <div class="prio-bar prio-2"></div>
           <div style="padding-left:8px">
-            <div class="task-name">Telemetry / Comms <span class="prio-label">PRIO 2</span></div>
-            <div class="task-meta"><span class="tag tag-core0">Core 0</span> &nbsp;ESP-NOW / UART</div>
+            <div class="task-name">Task: telemetry <span class="prio-label">PRIO 2</span></div>
+            <div class="task-meta"><span class="tag tag-core0">Core 0</span> &nbsp;rate-limited · ESP-NOW / UART</div>
             <div class="task-detail">
-              Reads snapshots of monitor structs (non-blocking). Serializes and transmits. Receives setpoint commands; writes to <code>setpoint_t</code> shared struct (guarded by mutex).
+              Snapshots motor_state_t and monitor outputs (non-blocking). Serialises and transmits. Receives external commands; writes setpoint_t under mutex.
             </div>
+            <ul class="swc-list">
+              <li>comms_tx — serialise and send telemetry</li>
+              <li>comms_rx — receive, validate, write setpoint_t</li>
+            </ul>
           </div>
         </div>
 
         <div class="task-card">
           <div class="prio-bar prio-1"></div>
           <div style="padding-left:8px">
-            <div class="task-name">Temp_Monitor <span class="prio-label">PRIO 1</span></div>
-            <div class="task-meta"><span class="tag tag-mon">Monitor</span> &nbsp;Low-rate, NTC or I²C</div>
+            <div class="task-name">Task: temp_monitor <span class="prio-label">PRIO 1</span></div>
+            <div class="task-meta"><span class="tag tag-mon">Monitor</span> &nbsp;low-rate · NTC or I²C</div>
             <div class="task-detail">
-              Reads thermistor / digital temp sensor. Sets <code>FAULT_OVERTEMP</code> flag if threshold exceeded. Updates thermal headroom estimate for FOC current limit derate (future).
+              Reads thermistor / digital temp sensor (~1–10 Hz). Sets FAULT_OVERTEMP in fault_flags_t. Updates thermal headroom for current derate (future).
             </div>
+            <ul class="swc-list">
+              <li>temp_monitor — read sensor, threshold compare, flag write</li>
+            </ul>
           </div>
         </div>
 
@@ -466,65 +259,198 @@
 
   <div class="prio-legend">
     <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div>Priority 5 — hard realtime</div>
-    <div class="legend-item"><div class="legend-dot" style="background:var(--warn)"></div>Priority 4 — realtime actuator</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Priority 3 — safety response</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Priority 2 — comms</div>
     <div class="legend-item"><div class="legend-dot" style="background:var(--muted)"></div>Priority 1 — background</div>
   </div>
 </section>
 
-<!-- SECTION: SIGNAL FLOW -->
+<!-- SIGNAL FLOW SVG -->
 <section>
   <h2>Signal Flow — Realtime Path</h2>
-  <div class="flow-diagram">
+  <div class="flow-wrap">
+    <svg viewBox="0 0 980 700" width="980" height="700" font-family="'JetBrains Mono',monospace" font-size="11">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#3a4a5a"/>
+        </marker>
+        <marker id="arr-f" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#7a2020"/>
+        </marker>
+      </defs>
 
-    <div class="flow-section-label">Hardware</div>
-    <div class="flow-row">
-      <div class="flow-block fb-hw">Phase shunts<br><span style="font-size:9px;color:var(--muted)">×4</span></div>
-      <div class="arrow">→</div>
-      <div class="flow-block fb-hw">INA241<br><span style="font-size:9px;color:var(--muted)">×4</span></div>
-      <div class="arrow">→</div>
-      <div class="flow-block fb-adc">AD4115 ×2<br><span style="font-size:9px;color:var(--muted)">SPI / DMA</span></div>
-    </div>
+      <!-- ══ COLOR LEGEND ══ -->
+      <text x="16" y="16" fill="#4a5a6a" font-size="9" font-weight="700" letter-spacing="1">COLOR KEY</text>
+      <rect x="16"  y="22" width="10" height="10" rx="2" fill="#14181f" stroke="#2e3848"/>
+      <text x="30"  y="31" fill="#6b7a8d" font-size="9">hardware</text>
+      <rect x="90"  y="22" width="10" height="10" rx="2" fill="#0e1f30" stroke="#1e3f60"/>
+      <text x="104" y="31" fill="#3b8eff" font-size="9">ADC / data</text>
+      <rect x="180" y="22" width="10" height="10" rx="2" fill="#0e2030" stroke="#1e3550"/>
+      <text x="194" y="31" fill="#80b8ff" font-size="9">monitors</text>
+      <rect x="260" y="22" width="10" height="10" rx="2" fill="#1a1030" stroke="#3a2060"/>
+      <text x="274" y="31" fill="#a070ff" font-size="9">control (FOC)</text>
+      <rect x="360" y="22" width="10" height="10" rx="2" fill="#0e2820" stroke="#1e4838"/>
+      <text x="374" y="31" fill="#00c896" font-size="9">output / modulation</text>
+      <rect x="490" y="22" width="10" height="10" rx="2" fill="#1e0808" stroke="#5e2020"/>
+      <text x="504" y="31" fill="#e84040" font-size="9">fault path</text>
+      <line x1="560" y1="27" x2="580" y2="27" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="584" y="31" fill="#6b7a8d" font-size="9">data flow</text>
+      <line x1="640" y1="27" x2="660" y2="27" stroke="#7a2020" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr-f)"/>
+      <text x="664" y="31" fill="#7a2020" font-size="9">fault / kill</text>
 
-    <div class="arrow-down">↓</div>
-    <div class="flow-label">adc_frame_t (double buffer)<br>notify on frame complete</div>
-    <div class="arrow-down">↓</div>
+      <!-- ══ HARDWARE INPUT ══ -->
+      <text x="490" y="56" text-anchor="middle" fill="#4a5a6a" font-size="10" font-weight="700" letter-spacing="2">HARDWARE INPUT</text>
+      <rect x="220" y="64" width="120" height="44" rx="4" fill="#14181f" stroke="#2e3848"/>
+      <text x="280" y="83"  text-anchor="middle" fill="#6b7a8d" font-weight="600">Phase shunts</text>
+      <text x="280" y="99"  text-anchor="middle" fill="#4a5a6a" font-size="9">×4</text>
+      <rect x="380" y="64" width="110" height="44" rx="4" fill="#14181f" stroke="#2e3848"/>
+      <text x="435" y="83"  text-anchor="middle" fill="#6b7a8d" font-weight="600">INA241</text>
+      <text x="435" y="99"  text-anchor="middle" fill="#4a5a6a" font-size="9">×4 · amp</text>
+      <rect x="530" y="64" width="130" height="44" rx="4" fill="#0e1f30" stroke="#1e3f60"/>
+      <text x="595" y="83"  text-anchor="middle" fill="#3b8eff" font-weight="600">AD4115 ×2</text>
+      <text x="595" y="99"  text-anchor="middle" fill="#2a4a70" font-size="9">SPI / DMA</text>
+      <line x1="340" y1="86" x2="378" y2="86" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="490" y1="86" x2="528" y2="86" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- DMA ISR notify down -->
+      <line x1="595" y1="108" x2="595" y2="138" stroke="#3a4a5a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <text x="603" y="122" fill="#4a5a6a" font-size="9">DMA ISR</text>
+      <text x="603" y="134" fill="#4a5a6a" font-size="9">xTaskNotifyFromISR</text>
 
-    <div class="flow-section-label">Core 1 — Control Loop</div>
-    <div class="flow-row">
-      <div class="flow-block fb-mon">Monitors<br><span style="font-size:9px;color:var(--muted)">(inline fns)</span></div>
-      <div class="arrow">→</div>
-      <div class="flow-block fb-foc">foc_u_guy<br><span style="font-size:9px;color:var(--muted)">Clarke·Park·PI</span></div>
-      <div class="arrow">→</div>
-      <div class="flow-block fb-foc">svm_orchestrator<br><span style="font-size:9px;color:var(--muted)">V_alpha·V_beta→duties</span></div>
-    </div>
+      <!-- ══ CONTROL LOOP TASK BOX ══ -->
+      <rect x="16" y="144" width="948" height="348" rx="6" fill="#0d1510" stroke="#1e3a28"/>
+      <text x="32" y="162" fill="#2a6a3a" font-size="10" font-weight="700" letter-spacing="1">TASK: control_loop  ·  Core 1  ·  PRIO 5  ·  ~18.5 kHz  ·  timing driven by ADC conversions</text>
 
-    <div class="arrow-down">↓ bridge_cmd_t[A,B,C] atomic commit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓ fault_flags</div>
+      <!-- LEFT COLUMN: adc_manager, monitors (expanded), rotor_observer -->
 
-    <div class="flow-row" style="margin-top:4px">
-      <div class="flow-block fb-bridge">bridge_driver ×N<br><span style="font-size:9px;color:var(--muted)">dead time · PWM hw</span></div>
-      <div style="flex:1"></div>
-      <div class="flow-block fb-fault">Fault_Responder<br><span style="font-size:9px;color:var(--muted)">Core 0 · gate kill</span></div>
-    </div>
+      <!-- adc_manager -->
+      <rect x="32" y="170" width="148" height="44" rx="4" fill="#101c28" stroke="#1e3f60"/>
+      <text x="106" y="189" text-anchor="middle" fill="#3b8eff" font-weight="600">adc_manager</text>
+      <text x="106" y="204" text-anchor="middle" fill="#2a4a70" font-size="9">check validity · swap buf ptr</text>
 
-    <div class="arrow-down">↓</div>
+      <!-- monitors expanded box -->
+      <rect x="32" y="228" width="148" height="130" rx="4" fill="#0a1520" stroke="#1e3550"/>
+      <text x="106" y="246" text-anchor="middle" fill="#80b8ff" font-weight="600">monitors</text>
+      <!-- current_monitor sub -->
+      <rect x="40" y="252" width="132" height="38" rx="3" fill="#0e2030" stroke="#1e3550"/>
+      <text x="106" y="268" text-anchor="middle" fill="#80b8ff" font-size="9" font-weight="600">current_monitor</text>
+      <text x="106" y="281" text-anchor="middle" fill="#2a4060" font-size="8">I_abc → scale, filter, OC flag</text>
+      <!-- voltage_monitor sub -->
+      <rect x="40" y="298" width="132" height="38" rx="3" fill="#0e2030" stroke="#1e3550"/>
+      <text x="106" y="314" text-anchor="middle" fill="#80b8ff" font-size="9" font-weight="600">voltage_monitor</text>
+      <text x="106" y="327" text-anchor="middle" fill="#2a4060" font-size="8">V_phase,V_dc → scale, filter, OV flag</text>
+      <!-- fault flags out label -->
+      <text x="106" y="368" text-anchor="middle" fill="#7a2020" font-size="8">→ fault_flags_t (atomic)</text>
 
-    <div class="flow-section-label">Hardware Output</div>
-    <div class="flow-row">
-      <div class="flow-block fb-hw">LTC7066 ×4<br><span style="font-size:9px;color:var(--muted)">gate drivers</span></div>
-      <div class="arrow">→</div>
-      <div class="flow-block fb-hw">FET half-bridges ×4<br><span style="font-size:9px;color:var(--muted)">motor phases</span></div>
-    </div>
+      <!-- rotor_observer -->
+      <rect x="32" y="374" width="148" height="44" rx="4" fill="#1a1030" stroke="#3a2060"/>
+      <text x="106" y="393" text-anchor="middle" fill="#a070ff" font-weight="600">rotor_observer</text>
+      <text x="106" y="408" text-anchor="middle" fill="#402060" font-size="9">θ_est · ω_est · observer_valid</text>
 
+      <!-- left col down arrows -->
+      <line x1="106" y1="214" x2="106" y2="226" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="106" y1="358" x2="106" y2="372" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- ── foc_u_guy ── -->
+      <rect x="220" y="200" width="175" height="160" rx="4" fill="#1a1030" stroke="#3a2060"/>
+      <text x="307" y="222" text-anchor="middle" fill="#a070ff" font-weight="600">foc_u_guy</text>
+      <text x="307" y="240" text-anchor="middle" fill="#402060" font-size="9">① check fault_state_t</text>
+      <text x="307" y="255" text-anchor="middle" fill="#402060" font-size="9">② read setpoint_t (Iq_ref, Id_ref)</text>
+      <text x="307" y="270" text-anchor="middle" fill="#402060" font-size="9">③ Clarke · Park transforms</text>
+      <text x="307" y="285" text-anchor="middle" fill="#402060" font-size="9">④ PI( Id_ref − Id )</text>
+      <text x="307" y="300" text-anchor="middle" fill="#402060" font-size="9">⑤ PI( Iq_ref − Iq )</text>
+      <text x="307" y="318" text-anchor="middle" fill="#5a3080" font-size="9">→ Vd, Vq</text>
+      <text x="307" y="350" text-anchor="middle" fill="#5a3080" font-size="8">zeroes output if fault active</text>
+
+      <!-- arrows into foc_u_guy -->
+      <line x1="180" y1="270" x2="218" y2="270" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="182" y="266" fill="#304050" font-size="8">I_abc scaled</text>
+      <line x1="180" y1="395" x2="210" y2="350" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="182" y="392" fill="#304050" font-size="8">θ,ω</text>
+
+      <!-- ── svm_orchestrator ── -->
+      <rect x="438" y="200" width="190" height="160" rx="4" fill="#0e2820" stroke="#1e4838"/>
+      <text x="533" y="222" text-anchor="middle" fill="#00c896" font-weight="600">svm_orchestrator</text>
+      <text x="533" y="242" text-anchor="middle" fill="#1a4838" font-size="9">inv Park:  dq → αβ  (internal)</text>
+      <text x="533" y="258" text-anchor="middle" fill="#1a4838" font-size="9">SVM sector identification</text>
+      <text x="533" y="274" text-anchor="middle" fill="#1a4838" font-size="9">dwell time calculation</text>
+      <text x="533" y="290" text-anchor="middle" fill="#1a4838" font-size="9">αβ → duty[A,B,C]</text>
+      <text x="533" y="318" text-anchor="middle" fill="#1a4838" font-size="8">αβ frame is internal only —</text>
+      <text x="533" y="330" text-anchor="middle" fill="#1a4838" font-size="8">does not cross SWC boundary</text>
+      <text x="533" y="350" text-anchor="middle" fill="#2a6848" font-size="9">→ bridge_cmd_t[A,B,C]</text>
+
+      <!-- foc_u_guy → svm_orchestrator -->
+      <line x1="395" y1="280" x2="436" y2="280" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="397" y="275" fill="#304050" font-size="8">Vd, Vq, θ_est</text>
+
+      <!-- ── bridge_driver ── -->
+      <rect x="672" y="200" width="278" height="160" rx="4" fill="#0e2820" stroke="#1e4838"/>
+      <text x="811" y="222" text-anchor="middle" fill="#00c896" font-weight="600">bridge_driver ×N</text>
+      <text x="811" y="242" text-anchor="middle" fill="#1a4838" font-size="9">① check gate_kill flag</text>
+      <text x="811" y="258" text-anchor="middle" fill="#1a4838" font-size="9">② if kill → disable both outputs, return</text>
+      <text x="811" y="274" text-anchor="middle" fill="#1a4838" font-size="9">③ insert dead time</text>
+      <text x="811" y="290" text-anchor="middle" fill="#1a4838" font-size="9">④ write HIN / LIN to PWM peripheral</text>
+      <text x="811" y="318" text-anchor="middle" fill="#1a4838" font-size="8">one instance per half-bridge</text>
+      <text x="811" y="330" text-anchor="middle" fill="#1a4838" font-size="8">topology-agnostic</text>
+
+      <!-- svm_orchestrator → bridge_driver -->
+      <line x1="628" y1="280" x2="670" y2="280" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="630" y="275" fill="#304050" font-size="8">bridge_cmd_t[A,B,C]</text>
+      <text x="630" y="286" fill="#304050" font-size="8">atomic commit</text>
+
+      <!-- ══ FAULT PATH ══ -->
+      <!-- monitors fault out — left spine -->
+      <line x1="32"  y1="310" x2="16"  y2="310" stroke="#7a2020" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="16"  y1="310" x2="16"  y2="556" stroke="#7a2020" stroke-width="1.5" stroke-dasharray="3,3"/>
+      <line x1="16"  y1="556" x2="32"  y2="556" stroke="#7a2020" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr-f)"/>
+      <text x="8" y="440" fill="#7a2020" font-size="9" transform="rotate(-90,8,440)">fault_flags_t + xTaskNotify</text>
+
+      <!-- ══ CORE 0 BOXES ══ -->
+      <!-- fault_responder -->
+      <rect x="32" y="530" width="220" height="52" rx="5" fill="#1e0808" stroke="#5e2020"/>
+      <text x="142" y="552" text-anchor="middle" fill="#e84040" font-weight="700">fault_responder</text>
+      <text x="142" y="568" text-anchor="middle" fill="#5a1818" font-size="9">Core 0 · sole writer fault_state_t · drives safing</text>
+
+      <!-- watchdog -->
+      <rect x="280" y="530" width="260" height="52" rx="5" fill="#1e1208" stroke="#5e3010"/>
+      <text x="410" y="552" text-anchor="middle" fill="#f0a030" font-weight="700">control_loop_watchdog</text>
+      <text x="410" y="568" text-anchor="middle" fill="#5a3010" font-size="9">Core 0 · polls last_frame_time · timeout → gate_kill + fault notify</text>
+
+      <!-- fault_state_t back to foc_u_guy -->
+      <line x1="252" y1="543" x2="307" y2="362" stroke="#7a2020" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arr-f)"/>
+      <text x="258" y="480" fill="#7a2020" font-size="8" transform="rotate(-70,258,480)">fault_state_t</text>
+
+      <!-- gate_kill: fault_responder → bridge_driver -->
+      <line x1="252" y1="556" x2="811" y2="362" stroke="#7a2020" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arr-f)"/>
+      <text x="560" y="510" fill="#7a2020" font-size="9">gate_kill</text>
+
+      <!-- last_frame_time: control_loop → watchdog -->
+      <line x1="307" y1="492" x2="410" y2="530" stroke="#5a3010" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arr-f)"/>
+      <text x="320" y="516" fill="#5a3010" font-size="8">last_frame_time</text>
+
+      <!-- ══ HARDWARE OUTPUT ══ -->
+      <text x="490" y="636" text-anchor="middle" fill="#4a5a6a" font-size="10" font-weight="700" letter-spacing="2">HARDWARE OUTPUT</text>
+      <line x1="811" y1="360" x2="811" y2="614" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <text x="816" y="510" fill="#4a5a6a" font-size="9">HIN / LIN</text>
+
+      <rect x="620" y="614" width="120" height="44" rx="4" fill="#14181f" stroke="#2e3848"/>
+      <text x="680" y="633" text-anchor="middle" fill="#6b7a8d" font-weight="600">LTC7066 ×N</text>
+      <text x="680" y="648" text-anchor="middle" fill="#4a5a6a" font-size="9">gate drivers</text>
+
+      <rect x="760" y="614" width="130" height="44" rx="4" fill="#14181f" stroke="#2e3848"/>
+      <text x="825" y="633" text-anchor="middle" fill="#6b7a8d" font-weight="600">FET bridges ×N</text>
+      <text x="825" y="648" text-anchor="middle" fill="#4a5a6a" font-size="9">motor phases</text>
+
+      <line x1="811" y1="614" x2="740" y2="614" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="740" y1="636" x2="758" y2="636" stroke="#3a4a5a" stroke-width="1.5" marker-end="url(#arr)"/>
+    </svg>
   </div>
 
-  <div class="note">
-    <strong style="color:var(--accent)">Design intent:</strong> <strong>foc_u_guy</strong> (current loop) and <strong>foc_u_buddy</strong> (state machine) are distinct software components sharing a single FreeRTOS task. foc_u_guy runs first each cycle on ADC frame notification; foc_u_buddy runs after, reading loop outputs to drive state transitions. Monitors are functions called inline within foc_u_guy — they set bits in <code>fault_flags_t</code> atomically but take no hardware action. Fault_Responder on Core 0 handles safing asynchronously.
+  <div class="note" style="margin-top:10px">
+    <strong>Execution order within control_loop task (each ADC frame):</strong> adc_manager → current_monitor → voltage_monitor → rotor_observer → foc_u_guy → svm_orchestrator → bridge_driver. All SWCs share the task stack; no IPC or context switch between them. fault_responder and control_loop_watchdog run on Core 0, independent of Core 1. foc_u_guy reads fault_state_t at top of each cycle and zeroes outputs if a fault is active.
   </div>
 </section>
 
-<!-- SECTION: SHARED MEMORY / INTERFACES -->
+<!-- SHARED DATA STRUCTURES -->
 <section>
   <h2>Shared Data Structures &amp; Interfaces</h2>
   <div class="iface-grid">
@@ -538,28 +464,37 @@
     <div class="iface-row">
       <div class="iface-cell">
         <div class="iface-name">adc_frame_t</div>
-        <div class="iface-sub">18 channels, raw + scaled</div>
+        <div class="iface-sub">16 ch results, raw counts</div>
       </div>
-      <div class="iface-cell">ADC_Manager → FOC_Control</div>
-      <div class="iface-cell">Double buffer + <code>xTaskNotify</code>. FOC reads back-buffer while ADC fills front. No mutex needed if swap is atomic.</div>
+      <div class="iface-cell">adc_manager → monitors, foc_u_guy (same task)</div>
+      <div class="iface-cell">Written by adc_manager via CPU polling SPI transaction after BUSY falls. Single buffer — no double buffer needed since the control loop is sequential and never reads a frame while another is being written. All downstream SWCs read from this buffer within the same task cycle.</div>
+    </div>
+
+    <div class="iface-row">
+      <div class="iface-cell">
+        <div class="iface-name">rotor_state_t</div>
+        <div class="iface-sub">θ_est, ω_est, observer_valid</div>
+      </div>
+      <div class="iface-cell">rotor_observer → foc_u_guy (same task)</div>
+      <div class="iface-cell">Plain struct write/read, same task. observer_valid read by foc_u_guy — if false, foc_u_guy runs open-loop V/f until convergence. See rotor_observer document.</div>
     </div>
 
     <div class="iface-row">
       <div class="iface-cell">
         <div class="iface-name">svm_cmd_t</div>
-        <div class="iface-sub">V_alpha, V_beta, V_dc</div>
+        <div class="iface-sub">Vd, Vq, θ_est</div>
       </div>
-      <div class="iface-cell">foc_u_guy → svm_orchestrator</div>
-      <div class="iface-cell">Same-task, no sync needed. Normalized voltage vector output of inverse Park transform. See bridge driver document for detail.</div>
+      <div class="iface-cell">foc_u_guy → svm_orchestrator (same task)</div>
+      <div class="iface-cell">Plain struct, same task. Vd/Vq are direct PI outputs in dq frame. svm_orchestrator owns all transforms: inverse Park (dq→αβ, internal) then SVM (αβ→duties). αβ frame does not cross any SWC boundary.</div>
     </div>
 
     <div class="iface-row">
       <div class="iface-cell">
         <div class="iface-name">bridge_cmd_t</div>
-        <div class="iface-sub">duty [0–1], enable, brake</div>
+        <div class="iface-sub">duty[A,B,C], enable, brake</div>
       </div>
-      <div class="iface-cell">svm_orchestrator → bridge_driver ×N</div>
-      <div class="iface-cell">Shadow register + atomic commit. All three phases written before any BridgeDriver reads. See bridge driver document for atomic commit TODO.</div>
+      <div class="iface-cell">svm_orchestrator → bridge_driver ×N (same task)</div>
+      <div class="iface-cell">Shadow register + atomic commit. All phases written before any bridge_driver reads. See bridge driver document for LEDC/RMT atomic commit TODO.</div>
     </div>
 
     <div class="iface-row">
@@ -567,8 +502,8 @@
         <div class="iface-name">fault_flags_t</div>
         <div class="iface-sub">uint32 bitmask</div>
       </div>
-      <div class="iface-cell">Monitors (inline) → Fault_Responder</div>
-      <div class="iface-cell"><code>atomic_fetch_or</code>. Set by monitors, cleared only by Fault_Responder after latching. Fault_Responder blocks on <code>xEventGroup</code>.</div>
+      <div class="iface-cell">monitors (control_loop) → fault_responder (Core 0)</div>
+      <div class="iface-cell"><code>atomic_fetch_or</code> to set. Monitors call <code>xTaskNotify(eSetBits)</code> to wake fault_responder. Cleared only by fault_responder after latching response. xTaskNotify preferred over xEventGroup — single consumer, lighter, 32-bit mask.</div>
     </div>
 
     <div class="iface-row">
@@ -576,26 +511,17 @@
         <div class="iface-name">fault_state_t</div>
         <div class="iface-sub">enum + context</div>
       </div>
-      <div class="iface-cell">Fault_Responder → FOC_Control, Telemetry</div>
-      <div class="iface-cell">Fault_Responder is sole writer. FOC reads to drive state machine transitions. Telemetry reads for logging.</div>
+      <div class="iface-cell">fault_responder → foc_u_guy, telemetry</div>
+      <div class="iface-cell">fault_responder is sole writer. foc_u_guy reads at top of each cycle — zeroes outputs and skips loop if fault active. telemetry reads for logging.</div>
     </div>
 
     <div class="iface-row">
       <div class="iface-cell">
-        <div class="iface-name">setpoint_t</div>
-        <div class="iface-sub">Iq_ref, Id_ref, mode</div>
+        <div class="iface-name">last_frame_time</div>
+        <div class="iface-sub">uint32 tick count</div>
       </div>
-      <div class="iface-cell">Comms → FOC_Control</div>
-      <div class="iface-cell">Mutex-guarded struct. Written by Comms on command receipt. Read by FOC each cycle. Consider rate-limiting writes.</div>
-    </div>
-
-    <div class="iface-row">
-      <div class="iface-cell">
-        <div class="iface-name">motor_mode_t</div>
-        <div class="iface-sub">enum: idle/align/run/fault/coast</div>
-      </div>
-      <div class="iface-cell">foc_u_buddy → foc_u_guy</div>
-      <div class="iface-cell">Written by foc_u_buddy after each state evaluation. Read by foc_u_guy at top of each cycle to gate loop execution. Same-task, so no synchronization needed — plain struct write/read.</div>
+      <div class="iface-cell">control_loop (Core 1) → control_loop_watchdog (Core 0)</div>
+      <div class="iface-cell">Written by foc_u_guy each cycle. Watchdog polls periodically and checks <code>now − last_frame_time</code>. Atomic uint32 write/read sufficient. See ADC timing document for threshold sizing.</div>
     </div>
 
     <div class="iface-row">
@@ -603,46 +529,85 @@
         <div class="iface-name">motor_state_t</div>
         <div class="iface-sub">θ_est, ω_est, Iq, Id, Vdc</div>
       </div>
-      <div class="iface-cell">foc_u_guy → Telemetry, Fault_Responder</div>
-      <div class="iface-cell">Written each FOC cycle. Telemetry takes non-blocking snapshot. No mutex needed if reads are atomic per-field or struct is small enough for single-copy.</div>
+      <div class="iface-cell">foc_u_guy → telemetry, watchdog (cross-task)</div>
+      <div class="iface-cell">Written each cycle by foc_u_guy. Telemetry snapshots non-blocking. Consider seqlock if struct grows large.</div>
+    </div>
+
+    <div class="iface-row">
+      <div class="iface-cell">
+        <div class="iface-name">setpoint_t</div>
+        <div class="iface-sub">Iq_ref, Id_ref, mode</div>
+      </div>
+      <div class="iface-cell">comms_rx → foc_u_guy (cross-task)</div>
+      <div class="iface-cell">Mutex-guarded. Written by telemetry task on command receipt. Read directly by foc_u_guy each cycle. No intermediate state machine layer.</div>
     </div>
 
   </div>
 </section>
 
-<!-- SECTION: OPEN QUESTIONS -->
+<!-- OPEN QUESTIONS -->
 <section>
   <h2>Open Questions &amp; Deferred Decisions</h2>
   <div class="questions">
 
     <div class="question">
-      <strong>ADC frame timing vs PWM sync</strong>
-      How do we align ADC conversion trigger with PWM switching events (sample at valley of carrier)? Likely needs a GPIO trigger from LEDC/RMT timer output, or a timer ISR that kicks ADC_Manager. To be resolved once test board is running.
+      <strong>ISR vs task for control_loop execution</strong>
+      Running FOC math directly in the DMA completion ISR eliminates the ~5 µs task-notify overhead (~12.5% of the 40 µs frame budget). ISR context restricts some FreeRTOS primitives and requires manual FPU register management, but these are configurable on ESP32 and may be acceptable if Core 1 is dedicated. Counterarguments: ISR stack is a global fixed config, interrupt nesting behavior differs, hardware watchdog (TWDT) integration is cleaner in task context. Not yet resolved — decision should be made empirically once cycle budget can be measured on real hardware. Architecture is compatible with either approach; only the scheduling wrapper changes.
     </div>
 
     <div class="question">
-      <strong>Per-channel scan rate with 2 × AD4115</strong>
-      Confirmed 24,845 SPS per channel in pipelined scan mode, but does enabling all 18 channels degrade this? Need to verify from datasheet timing model. Determines whether all channels can be sampled at 18.5 kHz or if channel subset must be used for the current loop.
-    </div>
-
-    <div class="question">
-      <strong>FOC_Control: inline monitors vs separate tasks</strong>
-      Proposed to call Current/Voltage monitors as functions within FOC_Control. This is efficient but means monitor logic runs at FOC rate. If monitor logic becomes expensive (e.g. RMS integration, harmonic analysis) it may need its own lower-priority task with snapshot reads.
+      <strong>Fault taxonomy and response actions</strong>
+      Enumerate fault types and match each to an appropriate hardware response. Candidate responses: (1) open all gates — motor freewheels, no braking, safest for most faults; (2) pull all low-side gates on — active braking / winding short, high current risk; (3) ramp down setpoint — controlled deceleration before gate disable; (4) log only — non-critical, no hardware action. Fault types to classify: overcurrent, overvoltage, undervoltage, overtemp, observer divergence, SPI fault, ADC timeout / control loop hang, shoot-through detection. To be worked through as a dedicated design session.
     </div>
 
     <div class="question">
       <strong>Observer for sensorless FOC</strong>
-      Sliding mode, Luenberger, EKF. EKF has best low-speed performance but highest compute cost. To be evaluated once phase current readings are available from test board.
+      See <em>rotor_observer document</em> for full discussion. SMO is the practical first implementation (VESC precedent, low compute). EKF deferred. Luenberger as bring-up stepping stone. Variant selection deferred until phase current readings are available from ADC test board.
     </div>
 
     <div class="question">
-      <strong>BridgeDriver: LEDC vs RMT</strong>
-      LEDC is simpler and sufficient for 3-phase PWM. RMT gives more flexible waveform control (useful for switched reluctance or stepper). Decision deferred to gate driver test board phase.
+      <strong>ADC timing, loop scheduling, and watchdog</strong>
+      AD7617 SAR ADC selected. MCPWM peripheral drives CONVST at carrier valley via hardware output compare. CPU polling SPI reads 32 bytes after BUSY falls. Worst-case CONVST-to-data-ready: ~21.9 µs (1-wire mode), leaving ~28 µs for FOC math in a 50 µs budget. 2-wire mode fallback saves ~3.2 µs if needed. Full analysis, timing budget, watchdog design, and open questions in <em>ADC timing &amp; watchdog document</em>.
     </div>
 
     <div class="question">
-      <strong>Motor state machine ownership — RESOLVED</strong>
-      Split into two components on one task: <strong>foc_u_guy</strong> owns the current loop, <strong>foc_u_buddy</strong> owns the state machine. Both run sequentially within the same FreeRTOS task each ADC frame cycle. foc_u_buddy reads loop outputs and fault state to drive transitions; writes <code>motor_mode_t</code> to gate foc_u_guy execution.
+      <strong>Per-channel scan rate with 2 × AD4115</strong>
+      Confirmed 24,845 SPS per channel pipelined. Does enabling all 18 channels degrade this? Verify from datasheet timing model. Determines whether all channels are available to the current loop at full rate.
+    </div>
+
+    <div class="question">
+      <strong>LEDC vs RMT for bridge_driver</strong>
+      LEDC sufficient for BLDC/PMSM/brushed DC. RMT needed for switched reluctance and stepper. See bridge driver document. Deferred to gate driver test board.
+    </div>
+
+    <div class="question">
+      <strong>load_configurator — deferred, not in realtime path</strong>
+      A configuration-time component (not a realtime SWC) that sets up the control loop for a given motor topology at startup or on explicit reconfigure command. Would instantiate or swap SWCs for different load types: 3-phase PMSM/BLDC (FOC, current architecture), stepper (two-winding orchestrator), brushed DC (direct duty), switched reluctance (sr_sequencer). BLDC and PMSM grouped under the same FOC architecture — both are permanent magnet machines, the dq-frame current loop is identical, differences are observer tuning and field weakening strategy only. Not scoped until basic FOC is running.
+    </div>
+
+    <div class="question resolved">
+      <strong>RESOLVED — foc_u_buddy removed</strong>
+      foc_u_buddy eliminated. Its responsibilities are redistributed: foc_u_guy reads fault_state_t directly and zeroes outputs on fault; comms_rx writes setpoint_t directly for foc_u_guy to consume; topology/mode configuration deferred to load_configurator (non-realtime). No orchestration layer in the realtime loop.
+    </div>
+
+    <div class="question resolved">
+      <strong>RESOLVED — SWC vs task distinction</strong>
+      All control_loop SWCs execute sequentially in one FreeRTOS task on Core 1. No context switches within the loop. Task boundaries drawn only where rate, priority, or core assignment genuinely differ.
+    </div>
+
+    <div class="question resolved">
+      <strong>RESOLVED — svm_cmd_t coordinate frame</strong>
+      Interface is Vd, Vq (dq frame) + θ_est. αβ is internal to svm_orchestrator. svm_orchestrator owns all transforms: inverse Park (dq→αβ) and SVM (αβ→switching duties).
+    </div>
+
+    <div class="question resolved">
+      <strong>RESOLVED — fault notification mechanism</strong>
+      xTaskNotify / xTaskNotifyFromISR with eSetBits. Single consumer (fault_responder), lighter than xEventGroup, 32-bit mask sufficient.
+    </div>
+
+    <div class="question resolved">
+      <strong>RESOLVED — BLDC and PMSM grouped under same FOC architecture</strong>
+      Both are permanent magnet machines. The Clarke/Park/PI/SVM loop is identical. Differences (saliency, Id ≠ 0 for field weakening in IPMSM) are tuning concerns, not architectural ones at this stage.
     </div>
 
   </div>

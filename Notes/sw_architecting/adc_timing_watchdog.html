@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADC Timing, Loop Scheduling &amp; Watchdog</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111418;
+    --surface2: #181c22;
+    --border: #222830;
+    --border2: #2e3640;
+    --text: #dde4ee;
+    --muted: #6b7a8d;
+    --accent: #3b8eff;
+    --accent2: #00c896;
+    --warn: #f0a030;
+    --danger: #e84040;
+    --purple: #a070ff;
+    --todo: #ff6a30;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 32px 20px;
+    min-height: 100vh;
+  }
+
+  header { border-bottom: 1px solid var(--border2); padding-bottom: 20px; margin-bottom: 36px; }
+  header h1 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: #fff; }
+  header p  { color: var(--muted); margin-top: 6px; font-size: 12px; }
+
+  section { margin-bottom: 48px; }
+  section h2 {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
+    color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+
+  .prose { font-size: 12px; color: #aab8c8; line-height: 1.8; max-width: 720px; margin-bottom: 12px; }
+  .prose strong { color: var(--text); }
+
+  code {
+    background: #1a2030; border: 1px solid var(--border2); border-radius: 3px;
+    padding: 1px 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #a0c8ff;
+  }
+
+  pre {
+    background: #0e1420; border: 1px solid var(--border2); border-radius: 5px;
+    padding: 14px 16px; font-size: 11px; color: #80b0e0;
+    line-height: 1.6; overflow-x: auto; margin: 12px 0;
+  }
+
+  .note {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 0 5px 5px 0;
+    padding: 10px 14px; font-size: 11px; color: #aab8c8; margin: 10px 0;
+  }
+  .note strong { color: var(--accent); }
+
+  .warn-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--warn); border-radius: 0 5px 5px 0;
+    padding: 10px 14px; font-size: 11px; color: #aab8c8; margin: 10px 0;
+  }
+  .warn-box strong { color: var(--warn); }
+
+  .todo {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--todo); border-radius: 0 5px 5px 0;
+    padding: 10px 14px; font-size: 11px; color: #aab8c8; margin-bottom: 8px;
+  }
+  .todo strong { color: var(--todo); display: block; margin-bottom: 3px; }
+
+  .timing-table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 12px 0; }
+  .timing-table th {
+    text-align: left; padding: 8px 12px; background: var(--surface2);
+    color: var(--muted); font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.08em; border-bottom: 1px solid var(--border2);
+  }
+  .timing-table td {
+    padding: 8px 12px; background: var(--surface);
+    border-bottom: 1px solid var(--border); color: #aab8c8; vertical-align: top;
+  }
+  .timing-table td:first-child { color: var(--text); font-weight: 600; }
+  .timing-table td.total { color: var(--accent2); font-weight: 700; }
+  .timing-table td.warn  { color: var(--warn); }
+  .timing-table tr.subtotal td { background: #0e1818; }
+  .timing-table tr.sum td { background: #0e2018; border-top: 1px solid var(--border2); }
+
+  .timing-wrap {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 16px; overflow-x: auto; margin: 12px 0;
+  }
+  .timing-wrap svg { display: block; }
+
+  .state-flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 12px 0; }
+  .state-box {
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 5px; padding: 10px 14px; font-size: 11px; min-width: 130px; text-align: center;
+  }
+  .state-name { font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .state-sub  { font-size: 9px; color: var(--muted); }
+  .state-arrow { color: var(--border2); font-size: 20px; padding: 0 8px; }
+  .sb-ok    { border-color: #2a5a2a; }
+  .sb-ok    .state-name { color: var(--accent2); }
+  .sb-warn  { border-color: #5a4a10; }
+  .sb-warn  .state-name { color: var(--warn); }
+  .sb-fault { border-color: #5a1818; }
+  .sb-fault .state-name { color: var(--danger); }
+
+  .questions { display: grid; gap: 8px; }
+  .question {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--warn); border-radius: 0 5px 5px 0;
+    padding: 10px 14px; font-size: 11px; color: #aab8c8;
+  }
+  .question strong { color: var(--warn); display: block; margin-bottom: 3px; }
+  .question.resolved { border-left-color: #2a5a2a; }
+  .question.resolved strong { color: var(--accent2); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ADC Timing, Loop Scheduling &amp; Watchdog</h1>
+  <p>Child document of Motor Driver Architecture · Revision 0.2 · Updated for AD7617 SAR ADC</p>
+</header>
+
+<!-- ADC SELECTION -->
+<section>
+  <h2>ADC Selection — AD7617</h2>
+
+  <p class="prose">
+    The original design used the AD4115 delta-sigma ADC. That device delivers 24,845 SPS total, distributed across all enabled channels in a pipelined scan — not 24,845 SPS per channel. With 7 minimum required channels (3× phase current, 3× phase voltage, DC bus voltage), the per-channel rate drops to ~3.5 kHz, which is insufficient for controlling any reasonably high-speed motor.
+  </p>
+
+  <p class="prose">
+    The selected replacement is the <strong>AD7617</strong>: a 14-bit dual SAR ADC with 16 channels organised as two simultaneous-sampling banks of 8 (bank A: V0A–V7A, bank B: V0B–V7B). A single CONVST pulse simultaneously samples one channel from each bank, giving two results per conversion cycle. At 1 MSPS per channel pair and 8 pairs covering all 16 channels, the effective per-channel sample rate is <strong>125 kHz</strong> — well in excess of requirements.
+  </p>
+
+  <p class="prose">
+    The AD7617 is explicitly listed in its datasheet for multiphase motor control applications. Key tradeoffs versus the AD4115: 14-bit resolution versus 24-bit, higher noise floor, no integrated delta-sigma filtering. Whether the noise floor is acceptable for phase current sensing must be validated on the test board against actual switching noise levels before the design is committed.
+  </p>
+
+  <div class="note">
+    <strong>Noise floor note:</strong> The AD7617 specifies 85 dB SNR at 1 MSPS on the ±10V range. At the ±10V range, 1 LSB = 1.22 mV. The INA241 current sense amplifier gain and shunt resistor selection must be chosen such that the full-scale current maps to a voltage swing that keeps quantization error acceptably small relative to the current measurement precision required by the FOC loop. This is a validation item for the ADC test board.
+  </div>
+</section>
+
+<!-- TIMING CHAIN -->
+<section>
+  <h2>Control Loop Timing Chain</h2>
+
+  <p class="prose">
+    Loop timing is driven by the MCPWM peripheral, not a software timer and not the ADC. The MCPWM timer generates a hardware output compare event at the PWM carrier valley — the moment of minimum switching activity and most settled phase currents. This event directly asserts the CONVST pin via GPIO output compare with hardware-grade timing precision (nanoseconds of jitter, no software involvement).
+  </p>
+
+  <p class="prose">
+    The AD7617 burst sequencer is programmed with all 8 channel pairs. A single CONVST pulse triggers the full burst. BUSY stays high for the entire burst duration. The control loop polls BUSY until it falls, then immediately executes a CPU polling SPI transaction to read all results. FOC math runs on the fresh data, then the loop waits for the next MCPWM event.
+  </p>
+
+  <pre>MCPWM carrier valley (hardware, 20 kHz)
+  → CONVST GPIO pulse (output compare, no CPU involvement)
+    → AD7617 burst conversion (8 pairs, BUSY high throughout)
+      → poll BUSY until low  ← CPU spins, nothing else to do
+        → CPU polling SPI transaction (32 bytes, 40 MHz, 1-wire)
+          → data in memory
+            → FOC math (monitors → observer → foc_u_guy → svm_orchestrator → bridge_driver)
+              → write last_frame_time
+                → wait for next MCPWM event</pre>
+
+  <div class="note">
+    <strong>Why CPU polling SPI, not DMA:</strong> DMA is useful when the CPU can do other work during the transfer. Here the control loop must block until data arrives — there is nothing to overlap. CPU polling transactions avoid DMA setup overhead and interrupt round-trip latency. The ESP-IDF SPI driver confirms CPU polling transactions are faster than DMA for short transfers. At 32 bytes this is the correct choice.
+  </div>
+
+  <div class="note">
+    <strong>Why MCPWM drives timing, not the ADC:</strong> The AD7617 is externally triggered via CONVST — it converts when told, not autonomously. This inverts the timing relationship from delta-sigma ADCs (which run autonomously and signal when done). Having MCPWM drive CONVST means the loop rate is set by the PWM carrier with hardware precision, and ADC sampling is inherently synchronised to the PWM valley. A software timer ISR would add microseconds of jitter to the CONVST trigger.
+  </div>
+</section>
+
+<!-- WORST CASE TIMING BUDGET -->
+<section>
+  <h2>Worst-Case Timing Budget</h2>
+
+  <p class="prose">
+    All figures use maximum datasheet values (AD7617) and worst-case overhead (ESP-IDF docs). The target loop period is 50 µs (20 kHz).
+  </p>
+
+  <table class="timing-table">
+    <tr>
+      <th>Phase</th>
+      <th>Duration</th>
+      <th>Source &amp; reasoning</th>
+    </tr>
+
+    <tr>
+      <td>CONVST pulse</td>
+      <td>~0 µs</td>
+      <td>Hardware GPIO output compare. Negligible — MCPWM fires it at the carrier valley with no CPU involvement.</td>
+    </tr>
+
+    <tr>
+      <td>AD7617 burst conversion (8 pairs)</td>
+      <td>~7.5 µs</td>
+      <td>
+        Datasheet formula (p.37): t_BURST = (t_CONV + 25ns) + (N−1)(t_ACQ + t_CONV)<br>
+        Using max t_CONV = 520ns, typ t_ACQ = 480ns, N = 8:<br>
+        = (520 + 25)ns + 7 × (480 + 520)ns<br>
+        = 545ns + 7000ns = 7.545µs<br>
+        The 25ns term is the BUSY assertion delay before the first conversion starts.<br>
+        No pipelining — each pair needs its own acquisition before conversion.
+      </td>
+    </tr>
+
+    <tr>
+      <td>BUSY poll overhead</td>
+      <td>~0.1 µs</td>
+      <td>Tight CPU polling loop, a few cycles per iteration. Negligible.</td>
+    </tr>
+
+    <tr>
+      <td>SPI transaction (1-wire mode)</td>
+      <td>~14.4 µs</td>
+      <td>
+        Fixed overhead: ≤8 µs (ESP-IDF docs, CPU polling, 1-byte reference transaction).<br>
+        Clock time: 32 bytes × 8 bits / 40 MHz = 6.4 µs.<br>
+        Total: 8 + 6.4 = 14.4 µs worst case.<br>
+        The 8 µs figure is a hard upper bound on overhead — the docs specify it for a 1-byte transaction, so clock time for our 32 bytes is additive.<br>
+        Readback is sequential after BUSY falls — not interleaved with conversion.
+      </td>
+    </tr>
+
+    <tr class="sum">
+      <td>Total (CONVST → data in memory)</td>
+      <td class="total">~21.9 µs</td>
+      <td>Worst case, 1-wire mode. Leaves ~28 µs for FOC math within 50 µs budget.</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <strong>2-wire mode fallback:</strong> In 2-wire mode, SDOA and SDOB output simultaneously, halving the serial bit count to 128 bits (16 bytes effective). Clock time drops to 3.2 µs, total SPI becomes ~11.2 µs, total end-to-end ~18.7 µs, leaving ~31 µs for FOC math. 2-wire uses one additional MISO pin but does not require a second SPI bus. This is a fallback if the 28 µs FOC budget proves insufficient after profiling.
+  </div>
+
+  <div class="warn-box">
+    <strong>What must be validated on hardware:</strong> The 8 µs SPI overhead is the dominant uncertainty. The ESP-IDF figure is for an unspecified clock rate and may not reflect actual conditions at 40 MHz with bus acquisition held. Measure CONVST-to-data-ready with GPIO toggles and a logic analyser during ADC test board bring-up. The actual budget may be better or worse than this analysis.
+  </div>
+</section>
+
+<!-- ISR VS TASK -->
+<section>
+  <h2>ISR vs Task Execution — Open Decision</h2>
+
+  <p class="prose">
+    With the MCPWM-driven, CPU-polling architecture, the ISR vs task question has less impact than it did under the DMA-triggered model. The control loop spends most of its time either polling BUSY or doing FOC math — not sleeping in a task waiting for a notification. However the decision still matters for the small overhead at cycle boundaries.
+  </p>
+
+  <table class="timing-table">
+    <tr>
+      <th>Consideration</th>
+      <th>Task (polling loop, wakes on MCPWM event)</th>
+      <th>Direct ISR execution</th>
+    </tr>
+    <tr>
+      <td>Scheduling overhead</td>
+      <td>~5 µs task-notify latency from MCPWM ISR (forum estimate, unverified). ~10% of 50 µs frame budget.</td>
+      <td class="total">Zero. MCPWM ISR directly executes control loop code.</td>
+    </tr>
+    <tr>
+      <td>FreeRTOS primitives</td>
+      <td class="total">Full access — task notify, mutexes available after FOC math completes.</td>
+      <td>Only FromISR variants. Acceptable if Core 1 is dedicated and cross-task communication is minimal.</td>
+    </tr>
+    <tr>
+      <td>Stack</td>
+      <td class="total">Per-task stack, configurable size. Observer + FOC math stack needs sizing.</td>
+      <td>Shared ISR stack, global ESP-IDF config. Must be sized for full FOC math depth.</td>
+    </tr>
+    <tr>
+      <td>Hardware watchdog (TWDT)</td>
+      <td class="total">Task-based TWDT reset via esp_task_wdt_reset() each cycle.</td>
+      <td>Must manually kick hardware timer register each cycle. Workable but bespoke.</td>
+    </tr>
+    <tr>
+      <td>Debuggability</td>
+      <td class="total">Standard task debugging, stack traces, RTOS-aware crash dumps.</td>
+      <td>ISR debugging harder; limited RTOS context in crash reports.</td>
+    </tr>
+  </table>
+
+  <div class="warn-box">
+    <strong>Recommendation:</strong> Start with a task that polls BUSY in a tight loop after receiving an MCPWM event notification. This preserves all task-context benefits and the overhead is bounded. If the ~5 µs notification latency proves materially costly after profiling real hardware, migrating to direct ISR execution is a localised change — the FOC math itself is unaffected. Do not optimise this before measuring.
+  </div>
+</section>
+
+<!-- TIMING DIAGRAM -->
+<section>
+  <h2>Frame Timing — Nominal Sequence</h2>
+  <div class="timing-wrap">
+    <svg viewBox="0 0 860 220" width="860" height="220" font-family="'JetBrains Mono',monospace" font-size="10">
+
+      <defs>
+        <marker id="ta" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="#3a4a5a"/>
+        </marker>
+      </defs>
+
+      <!-- time axis -->
+      <line x1="20" y1="195" x2="840" y2="195" stroke="#2e3640" stroke-width="1" marker-end="url(#ta)"/>
+      <text x="20"  y="210" fill="#4a5a6a" font-size="9">t=0</text>
+      <text x="480" y="210" fill="#4a5a6a" font-size="9">~50 µs (20 kHz)</text>
+      <text x="820" y="210" fill="#4a5a6a" font-size="9">~100 µs</text>
+
+      <!-- ── FRAME N ── -->
+
+      <!-- MCPWM valley event -->
+      <line x1="20" y1="15" x2="20" y2="185" stroke="#2a6a3a" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="22" y="12" fill="#2a6a3a" font-size="8">MCPWM valley</text>
+      <text x="22" y="22" fill="#2a6a3a" font-size="8">CONVST asserted</text>
+
+      <!-- burst conversion -->
+      <rect x="20" y="30" width="130" height="26" rx="3" fill="#0e1f30" stroke="#1e3f60"/>
+      <text x="85"  y="44" text-anchor="middle" fill="#3b8eff" font-size="9" font-weight="600">AD7617 burst</text>
+      <text x="85"  y="55" text-anchor="middle" fill="#2a4a70" font-size="8">~7.5 µs · BUSY high</text>
+
+      <!-- BUSY fall -->
+      <line x1="150" y1="56" x2="150" y2="80" stroke="#3b8eff" stroke-width="1" stroke-dasharray="2,2"/>
+      <text x="153" y="72" fill="#3b8eff" font-size="8">BUSY↓</text>
+
+      <!-- BUSY poll -->
+      <rect x="150" y="63" width="30" height="18" rx="2" fill="#1a1e28" stroke="#2e3848"/>
+      <text x="165" y="75" text-anchor="middle" fill="#6b7a8d" font-size="7">poll</text>
+
+      <!-- SPI transaction -->
+      <rect x="180" y="63" width="230" height="26" rx="3" fill="#101c28" stroke="#1e3f60"/>
+      <text x="295" y="76" text-anchor="middle" fill="#60a8c0" font-size="9" font-weight="600">CPU polling SPI</text>
+      <text x="295" y="87" text-anchor="middle" fill="#2a4a70" font-size="8">32 bytes · 40 MHz · ~14.4 µs worst case</text>
+
+      <!-- data ready marker -->
+      <line x1="410" y1="63" x2="410" y2="105" stroke="#00c896" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="413" y="100" fill="#00c896" font-size="8">data ready</text>
+      <text x="413" y="110" fill="#00c896" font-size="8">~21.9 µs worst</text>
+
+      <!-- FOC math -->
+      <rect x="410" y="115" width="70" height="26" rx="3" fill="#1a1030" stroke="#3a2060"/>
+      <text x="445" y="128" text-anchor="middle" fill="#a070ff" font-size="8" font-weight="600">monitors</text>
+      <text x="445" y="138" text-anchor="middle" fill="#402060" font-size="7">I, V, scale</text>
+
+      <rect x="487" y="115" width="60" height="26" rx="3" fill="#1a1030" stroke="#3a2060"/>
+      <text x="517" y="128" text-anchor="middle" fill="#a070ff" font-size="8" font-weight="600">observer</text>
+      <text x="517" y="138" text-anchor="middle" fill="#402060" font-size="7">θ, ω</text>
+
+      <rect x="554" y="115" width="60" height="26" rx="3" fill="#1a1030" stroke="#3a2060"/>
+      <text x="584" y="128" text-anchor="middle" fill="#a070ff" font-size="8" font-weight="600">foc_u_guy</text>
+      <text x="584" y="138" text-anchor="middle" fill="#402060" font-size="7">PI → Vd,Vq</text>
+
+      <rect x="621" y="115" width="70" height="26" rx="3" fill="#0e2820" stroke="#1e4838"/>
+      <text x="656" y="128" text-anchor="middle" fill="#00c896" font-size="8" font-weight="600">svm+bridge</text>
+      <text x="656" y="138" text-anchor="middle" fill="#1a4838" font-size="7">duties → PWM</text>
+
+      <!-- last_frame_time write -->
+      <line x1="691" y1="141" x2="691" y2="165" stroke="#5a3010" stroke-width="1" stroke-dasharray="2,2"/>
+      <text x="694" y="160" fill="#5a3010" font-size="8">write last_frame_time</text>
+
+      <!-- wait for next event -->
+      <rect x="691" y="115" width="80" height="26" rx="3" fill="#0a100a" stroke="#1a3a1a"/>
+      <text x="731" y="131" text-anchor="middle" fill="#2a5a2a" font-size="8">wait MCPWM</text>
+
+      <!-- ── FRAME N+1 ── -->
+      <line x1="500" y1="15" x2="500" y2="115" stroke="#2a6a3a" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <text x="502" y="12" fill="#2a6a3a" font-size="8">next valley</text>
+
+      <rect x="500" y="30" width="130" height="26" rx="3" fill="#0e1f30" stroke="#1e3f60"/>
+      <text x="565" y="44" text-anchor="middle" fill="#3b8eff" font-size="9" font-weight="600">AD7617 burst</text>
+      <text x="565" y="55" text-anchor="middle" fill="#2a4a70" font-size="8">~7.5 µs · BUSY high</text>
+
+      <!-- budget annotation -->
+      <line x1="20"  y1="180" x2="410" y2="180" stroke="#3a4a5a" stroke-width="1"/>
+      <line x1="20"  y1="176" x2="20"  y2="184" stroke="#3a4a5a" stroke-width="1"/>
+      <line x1="410" y1="176" x2="410" y2="184" stroke="#3a4a5a" stroke-width="1"/>
+      <text x="215" y="178" text-anchor="middle" fill="#5a6a7a" font-size="8">~21.9 µs worst case (CONVST → data ready)</text>
+
+      <line x1="410" y1="180" x2="500" y2="180" stroke="#2a4a3a" stroke-width="1"/>
+      <line x1="500" y1="176" x2="500" y2="184" stroke="#2a4a3a" stroke-width="1"/>
+      <text x="455" y="178" text-anchor="middle" fill="#2a6a4a" font-size="8">~28 µs for FOC</text>
+
+    </svg>
+  </div>
+</section>
+
+<!-- WATCHDOG -->
+<section>
+  <h2>Control Loop Watchdog — Design</h2>
+
+  <p class="prose">
+    The watchdog detects two failure modes: (1) the AD7617 stops responding — BUSY never falls after CONVST, causing the control loop to spin indefinitely on the BUSY poll; and (2) the control loop hangs mid-execution (infinite loop, stack overflow, memory bus stall). A timeout on the BUSY poll catches case 1. A timestamp-based watchdog on Core 0 catches both.
+  </p>
+
+  <p class="prose">
+    <strong>Mechanism:</strong> foc_u_guy writes <code>last_frame_time = xTaskGetTickCount()</code> at the end of each successful cycle. The watchdog task on Core 0 wakes periodically and checks <code>xTaskGetTickCount() − last_frame_time</code> against a threshold. On timeout it kills gates directly via the LTC7066 EN GPIO, then notifies fault_responder.
+  </p>
+
+  <p class="prose">
+    Running the watchdog on Core 0 is essential — a Core 1 hang would also stall a Core 1 watchdog task, defeating the purpose.
+  </p>
+
+  <pre>// Watchdog task (Core 0, PRIO 3)
+void control_loop_watchdog_task(void *arg) {
+    const TickType_t THRESHOLD = pdMS_TO_TICKS(WATCHDOG_TIMEOUT_MS);
+    const TickType_t POLL_RATE = pdMS_TO_TICKS(WATCHDOG_POLL_MS);
+
+    while (1) {
+        vTaskDelay(POLL_RATE);
+
+        TickType_t now  = xTaskGetTickCount();
+        TickType_t last = atomic_load(&last_frame_time);
+
+        if ((now - last) > THRESHOLD) {
+            // Direct gate kill via LTC7066 EN GPIO — do not wait for fault_responder
+            gpio_set_level(GATE_KILL_GPIO, 0);
+            // Notify fault_responder for logging / LED indication
+            xTaskNotify(fault_responder_handle,
+                        FAULT_CONTROL_LOOP_TIMEOUT, eSetBits);
+            // Suspend self — recovery requires system reset
+            vTaskSuspend(NULL);
+        }
+    }
+}</pre>
+
+  <div class="warn-box">
+    <strong>Gate kill ordering:</strong> The LTC7066 EN GPIO must be pulled low before notifying fault_responder. fault_responder may take several hundred µs to wake. The gate kill is hardware-speed via the EN pin — independent of firmware on Core 1.
+  </div>
+
+  <table class="timing-table" style="margin-top:12px">
+    <tr>
+      <th>Parameter</th>
+      <th>Starting value</th>
+      <th>Rationale</th>
+    </tr>
+    <tr>
+      <td>Expected frame period</td>
+      <td>~50 µs</td>
+      <td>20 kHz loop rate set by MCPWM timer.</td>
+    </tr>
+    <tr>
+      <td>Watchdog threshold</td>
+      <td>10× frame = ~500 µs</td>
+      <td>Enough headroom above normal jitter; fast enough to catch a real hang before damage. Tune empirically.</td>
+    </tr>
+    <tr>
+      <td>Watchdog poll rate</td>
+      <td>5× frame = ~250 µs</td>
+      <td>Polls faster than threshold so timeout is caught promptly after it occurs.</td>
+    </tr>
+  </table>
+
+  <div class="state-flow">
+    <div class="state-box sb-ok">
+      <div class="state-name">RUNNING</div>
+      <div class="state-sub">last_frame_time updating<br>delta &lt; threshold</div>
+    </div>
+    <div class="state-arrow">→</div>
+    <div class="state-box sb-warn">
+      <div class="state-name">TIMEOUT</div>
+      <div class="state-sub">delta &gt; threshold<br>watchdog fires</div>
+    </div>
+    <div class="state-arrow">→</div>
+    <div class="state-box sb-fault">
+      <div class="state-name">SAFE</div>
+      <div class="state-sub">EN GPIO low<br>fault_responder notified<br>watchdog suspended</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>No recovery path from watchdog timeout.</strong> A control loop hang indicates a firmware bug or hardware fault serious enough that re-enabling the drive without a full system reset is unsafe. Recovery requires power-cycle or hardware watchdog (TWDT) reset. Soft recovery from an unknown hang state risks immediately re-entering the fault.
+  </div>
+</section>
+
+<!-- PWM SYNC -->
+<section>
+  <h2>PWM / ADC Synchronisation</h2>
+
+  <p class="prose">
+    Sampling at the PWM carrier valley minimises switching noise in current readings. At the valley of the center-aligned (triangle) carrier, all low-side FETs are on and switching activity has settled — this is the moment of minimum electromagnetic interference from commutation. Sampling here measures the fundamental average current rather than a switching artifact.
+  </p>
+
+  <p class="prose">
+    With MCPWM driving CONVST via output compare, synchronisation is inherent — the ADC conversion is triggered precisely at the carrier valley event. No additional alignment step is needed, provided all three phase PWM outputs are driven by the same MCPWM timer. Outputs from different timers may drift in phase relative to each other and would need explicit synchronisation.
+  </p>
+
+  <div class="note">
+    <strong>All phases must share one MCPWM timer.</strong> The ESP32 MCPWM peripheral supports multiple operator/comparator pairs per timer — sufficient to drive all three half-bridges from a single timer, ensuring a common carrier phase for the CONVST trigger.
+  </div>
+
+  <div class="todo">
+    <strong>TODO — Verify MCPWM output compare event routing to GPIO</strong>
+    Confirm that the MCPWM timer's valley (counter = 0) event can drive a GPIO output compare pin without CPU involvement. This is the mechanism for hardware-precision CONVST triggering. Review ESP-IDF MCPWM documentation for sync output configuration.
+  </div>
+</section>
+
+<!-- SPI BUS -->
+<section>
+  <h2>SPI Bus Configuration</h2>
+
+  <p class="prose">
+    The AD7617 requires a dedicated SPI bus. The ESP32 has two independent GP-SPI peripherals (HSPI, VSPI). The ADC takes one; the other is reserved for auxiliary peripherals (hall effect sensors for observer validation, or other sensors). This avoids bus sharing overhead between time-critical ADC transactions and lower-priority sensor reads.
+  </p>
+
+  <p class="prose">
+    <strong>Bus acquisition:</strong> The ESP-IDF <code>spi_device_acquire_bus()</code> / <code>spi_device_release_bus()</code> mechanism locks the bus for a sequence of transactions without releasing between them. Since only one device uses the ADC bus, the bus should be acquired once at startup and never released. This eliminates the ~1 µs <code>polling_end</code> unblocking overhead that would otherwise apply between transactions.
+  </p>
+
+  <p class="prose">
+    <strong>IO_MUX pin requirement:</strong> Maximum SPI clock speed (40 MHz) requires using IO_MUX-routed pins, not GPIO matrix-routed pins. The GPIO matrix adds ~10 ns propagation delay per signal edge which violates setup/hold margins at 40 MHz. Use the default HSPI or VSPI pin assignments on the ESP32 (SCLK, MOSI, MISO, CS must all be IO_MUX pins for that peripheral).
+  </p>
+
+  <p class="prose">
+    <strong>1-wire vs 2-wire serial mode:</strong> In 1-wire mode, SDOA and SDOB are multiplexed onto a single MISO line (32 bytes per burst read). In 2-wire mode they are separate, halving the serial clock time (16 bytes effective per burst read, saving ~3.2 µs). 1-wire is preferred to keep the pin count low and leave MISO2 available. 2-wire is the fallback if FOC math cannot fit within the ~28 µs remaining after 1-wire readout.
+  </p>
+</section>
+
+<!-- OPEN QUESTIONS -->
+<section>
+  <h2>Open Questions</h2>
+  <div class="questions">
+
+    <div class="question">
+      <strong>ISR vs task execution</strong>
+      Start with task + MCPWM event notification. Measure actual latency with GPIO toggles on real hardware before optimising. See tradeoff table above. Architecture is compatible with either approach.
+    </div>
+
+    <div class="question">
+      <strong>Watchdog threshold values</strong>
+      WATCHDOG_TIMEOUT_MS (~500 µs) and WATCHDOG_POLL_MS (~250 µs) are starting points. Tune after measuring actual frame period and jitter on hardware.
+    </div>
+
+    <div class="question">
+      <strong>PWM / ADC valley alignment verification</strong>
+      Confirm MCPWM output compare event can drive CONVST GPIO at carrier valley without CPU involvement. Verify on test board with logic analyser that CONVST pulse is phase-aligned with PWM carrier valley.
+    </div>
+
+    <div class="question">
+      <strong>AD7617 noise floor validation</strong>
+      14-bit SAR noise floor must be validated against actual switching noise on phase current signals. INA241 gain and shunt value must map full-scale current to sufficient ADC range. Validation item for ADC test board bring-up.
+    </div>
+
+    <div class="question">
+      <strong>SPI transaction timing validation</strong>
+      The 8 µs overhead figure from ESP-IDF docs is a hard upper bound but its actual value at 40 MHz with bus held acquired is unknown. Measure CONVST-to-data-ready with logic analyser during bring-up.
+    </div>
+
+    <div class="question">
+      <strong>BUSY poll vs BUSY interrupt for SPI trigger</strong>
+      Currently the control loop spins on BUSY. An alternative is to wire BUSY to a GPIO interrupt that triggers the SPI transaction, allowing the CPU to potentially do other work during conversion. Given conversion takes only ~7.5 µs and the CPU has nothing else to do on Core 1, spinning is probably correct — but worth confirming once the full FOC math cycle time is profiled.
+    </div>
+
+    <div class="question resolved">
+      <strong>RESOLVED — ADC selection</strong>
+      AD4115 delta-sigma rejected: per-channel sample rate at 7+ channels is ~3.5 kHz, insufficient for motor control. AD7617 dual SAR selected: 125 kHz per channel at 16 channels, explicitly listed for multiphase motor control.
+    </div>
+
+    <div class="question resolved">
+      <strong>RESOLVED — Loop timing master</strong>
+      MCPWM peripheral drives CONVST via hardware output compare. Not a software timer, not the ADC. This gives hardware-grade jitter on the sample trigger and inherently synchronises ADC sampling to the PWM carrier valley.
+    </div>
+
+    <div class="question resolved">
+      <strong>RESOLVED — DMA vs CPU polling for SPI</strong>
+      CPU polling transactions used. DMA provides no benefit when the control loop must block waiting for data — there is nothing to overlap. CPU polling is faster for short transfers and eliminates DMA setup overhead.
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>
