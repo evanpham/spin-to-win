@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rotor_observer — Concepts &amp; SWC Sketch</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111418;
+    --surface2: #181c22;
+    --border: #222830;
+    --border2: #2e3640;
+    --text: #dde4ee;
+    --muted: #6b7a8d;
+    --accent: #3b8eff;
+    --accent2: #00c896;
+    --warn: #f0a030;
+    --danger: #e84040;
+    --purple: #a070ff;
+    --todo: #ff6a30;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 32px 20px;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  header p { color: var(--muted); margin-top: 6px; font-size: 12px; }
+
+  section { margin-bottom: 48px; }
+
+  section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  code {
+    background: #1a2030;
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #a0c8ff;
+  }
+
+  .prose {
+    font-size: 12px;
+    color: #aab8c8;
+    line-height: 1.8;
+    max-width: 680px;
+  }
+
+  .prose + .prose { margin-top: 12px; }
+
+  .prose strong { color: var(--text); }
+
+  /* Step-by-step cycle */
+  .cycle {
+    display: grid;
+    gap: 2px;
+    margin: 16px 0;
+  }
+
+  .cycle-step {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .sn-propagate { background: #1a2e22; color: var(--accent2); }
+  .sn-predict   { background: #0e1f30; color: var(--accent);  }
+  .sn-innovate  { background: #2a1a3a; color: var(--purple);  }
+  .sn-correct   { background: #2e1a1a; color: var(--danger);  }
+
+  .step-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+  }
+
+  .step-title {
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .step-text { font-size: 11px; color: #8a97a8; line-height: 1.6; }
+
+  .step-eq {
+    background: #0e1420;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-top: 6px;
+    font-size: 11px;
+    color: #80b0e0;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: pre;
+  }
+
+  /* Observer variants table */
+  .variant-grid { display: grid; gap: 10px; }
+
+  .variant-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .variant-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 14px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .variant-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .variant-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .variant-cell {
+    background: var(--surface);
+    padding: 10px 12px;
+    font-size: 11px;
+    color: #8a97a8;
+  }
+
+  .variant-cell-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  /* SWC sketch */
+  .swc-box {
+    background: var(--surface);
+    border: 2px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 560px;
+  }
+
+  .swc-title {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border2);
+    padding: 10px 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .swc-ports {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .swc-port-group { background: var(--surface); padding: 12px 14px; }
+
+  .swc-port-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .port {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+
+  .port-arrow { color: var(--muted); font-size: 10px; }
+  .port-name  { color: var(--accent2); font-weight: 600; }
+  .port-type  { color: var(--muted); font-size: 10px; }
+
+  .swc-internals { padding: 14px 16px; }
+
+  .swc-int-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .internal-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: #8a97a8;
+  }
+
+  .int-bullet {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .swc-state { padding: 0 16px 14px; }
+
+  .state-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .state-var {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
+
+  .sv-name { color: var(--purple); min-width: 80px; }
+  .sv-desc { color: #8a97a8; }
+
+  /* Notes / TODOs */
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 5px 5px 0;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #aab8c8;
+    margin-top: 10px;
+  }
+
+  .note strong { color: var(--accent); }
+
+  .todo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--todo);
+    border-radius: 0 5px 5px 0;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #aab8c8;
+    margin-bottom: 8px;
+  }
+
+  .todo strong { color: var(--todo); display: block; margin-bottom: 3px; }
+
+  .warn-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--warn);
+    border-radius: 0 5px 5px 0;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #aab8c8;
+    margin-top: 10px;
+  }
+
+  .warn-box strong { color: var(--warn); }
+
+  @media (max-width: 600px) {
+    .variant-body { grid-template-columns: 1fr; }
+    .swc-ports { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>rotor_observer — Concepts &amp; SWC Sketch</h1>
+  <p>Observer theory, design decisions, and software component interface · Revision 0.1</p>
+</header>
+
+<!-- WHY AN OBSERVER -->
+<section>
+  <h2>Why an Observer — Not Direct Calculation</h2>
+
+  <p class="prose">
+    Rotor position cannot be read directly in a sensorless system. It must be inferred from phase currents and voltages via the motor's electrical model. The naive approach — compute back-EMF from <code>V - IR - L·dI/dt</code>, estimate ω from back-EMF via Kv, integrate ω to get θ — works in principle but has two fundamental problems.
+  </p>
+
+  <p class="prose">
+    <strong>Integration drift.</strong> Any error in R, L, or flux linkage produces a persistent error in the back-EMF estimate. Integrating that error accumulates unboundedly into the θ estimate. There is no correction mechanism — the estimate wanders from truth over time.
+  </p>
+
+  <p class="prose">
+    <strong>Low-speed collapse.</strong> Back-EMF scales with ω. At low speed it is tiny relative to the resistive and inductive voltage drops, making it effectively buried in noise. Direct back-EMF extraction becomes unreliable below ~10–15% of rated speed for most motors.
+  </p>
+
+  <p class="prose">
+    An observer solves both problems by adding a <strong>correction loop</strong>: it continuously compares what the motor model <em>predicts the measurements should be</em> against what was <em>actually measured</em>, and uses the residual to pull the state estimate back toward truth every cycle.
+  </p>
+</section>
+
+<!-- ONE CYCLE WALKTHROUGH -->
+<section>
+  <h2>Observer Cycle — Step by Step</h2>
+
+  <p class="prose" style="margin-bottom:14px">Each ADC frame triggers one full observer cycle. All four steps execute within the same task cycle as foc_u_guy.</p>
+
+  <div class="cycle">
+
+    <div class="cycle-step">
+      <div class="step-num sn-propagate">1</div>
+      <div class="step-body">
+        <div class="step-title">Propagate — advance state using physics</div>
+        <div class="step-text">Use last cycle's estimates (θ, ω) plus the present voltage input and the motor model (R, L, flux linkage) to predict what the state should be now, without looking at measurements.</div>
+        <div class="step-eq">θ_pred = θ_est[n-1] + ω_est[n-1] · dt
+ω_pred = ω_est[n-1] + torque_model · dt</div>
+      </div>
+    </div>
+
+    <div class="cycle-step">
+      <div class="step-num sn-predict">2</div>
+      <div class="step-body">
+        <div class="step-title">Predict measurement — what should we be seeing?</div>
+        <div class="step-text">Run the motor model forward from the propagated state to compute what the phase currents should look like this cycle. This uses the same model inputs as step 1 — the key is that it uses the <em>previous</em> state estimate, not the current measurement.</div>
+        <div class="step-eq">I_predicted[n] = f(θ_pred, ω_pred, V_phase[n], R, L)</div>
+        <div class="step-text" style="margin-top:6px">Steps 1 and 2 are operationally one function call. Separated here for conceptual clarity only.</div>
+      </div>
+    </div>
+
+    <div class="cycle-step">
+      <div class="step-num sn-innovate">3</div>
+      <div class="step-body">
+        <div class="step-title">Innovation — measurement residual</div>
+        <div class="step-text">Compare predicted current to actually measured current. This residual is nonzero whenever the state estimate is wrong — not just when measurements are changing. It is expressed in measurement space (amps), not state space (radians).</div>
+        <div class="step-eq">innovation[n] = I_measured[n] - I_predicted[n]</div>
+      </div>
+    </div>
+
+    <div class="cycle-step">
+      <div class="step-num sn-correct">4</div>
+      <div class="step-body">
+        <div class="step-title">Correct — update state estimate</div>
+        <div class="step-text">Add a scaled fraction of the innovation to the propagated state. L_gain translates from measurement space (amps) to state space (radians, rad/s). It sets the trust balance between model propagation and measurement correction.</div>
+        <div class="step-eq">θ_est[n] = θ_pred + L_gain_θ · innovation[n]
+ω_est[n] = ω_pred + L_gain_ω · innovation[n]</div>
+        <div class="step-text" style="margin-top:6px"><strong>High L_gain:</strong> snaps to measurement — responsive but noisy. <strong>Low L_gain:</strong> trusts the model — smooth but drifts if model is wrong. Gain tuning is the primary design parameter of the observer.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong>Key insight:</strong> The observer does not do f⁻¹(f(measurements)) = measurements. The prediction uses the <em>previous</em> state estimate propagated forward; the measurement is <em>current</em>. Any estimation error from the previous cycle shows up as a nonzero innovation — a persistent, self-correcting signal that keeps the estimate anchored to reality.
+  </div>
+</section>
+
+<!-- MODEL ERROR -->
+<section>
+  <h2>Model Error and Parameter Bias</h2>
+
+  <p class="prose">
+    If R or L are wrong, <code>I_predicted</code> is systematically off even when the state estimate is correct. The observer interprets this as a state error and biases θ_est and ω_est in whatever direction minimises it — which is the wrong direction. The estimate converges to a wrong value confidently.
+  </p>
+
+  <div class="variant-grid" style="margin-top:14px">
+
+    <div class="variant-card">
+      <div class="variant-header"><div class="variant-name">Parameter ID at startup</div></div>
+      <div class="variant-body">
+        <div class="variant-cell"><div class="variant-cell-label">Method</div>Inject test signal (DC pulse for R, AC for L), fit measured response</div>
+        <div class="variant-cell"><div class="variant-cell-label">Pros</div>Simple, runs once, no runtime cost. Good for stable parameters.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Cons</div>R changes with temperature. L changes with saturation. Parameters drift after identification.</div>
+      </div>
+    </div>
+
+    <div class="variant-card">
+      <div class="variant-header"><div class="variant-name">Extended state estimation</div></div>
+      <div class="variant-body">
+        <div class="variant-cell"><div class="variant-cell-label">Method</div>Add R (or flux linkage) as an additional state variable. EKF estimates [θ, ω, R] simultaneously.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Pros</div>Self-correcting over time. Handles thermal drift. No separate ID step needed.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Cons</div>Significantly higher compute cost. EKF already expensive; augmented state compounds it.</div>
+      </div>
+    </div>
+
+    <div class="variant-card">
+      <div class="variant-header"><div class="variant-name">Disturbance / integral term</div></div>
+      <div class="variant-body">
+        <div class="variant-cell"><div class="variant-cell-label">Method</div>Add integrating disturbance state that accumulates persistent innovation. Absorbs slow biases without identifying their source.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Pros</div>Low complexity. Effective for slow-moving parameter drift. Common in practical FOC implementations.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Cons</div>Integrator can wind up. Doesn't distinguish between model error and real disturbances.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="warn-box" style="margin-top:14px">
+    <strong>Practical note:</strong> Most BLDC sensorless implementations tolerate 10–20% parameter error because the correction loop partially compensates. Start with measured R and L from bench identification. Exact parameters matter most at low speed where back-EMF is small and the model term dominates. Do not optimise parameter estimation before basic observer convergence is demonstrated.
+  </div>
+</section>
+
+<!-- OBSERVER VARIANTS -->
+<section>
+  <h2>Observer Variants — Tradeoffs</h2>
+  <div class="variant-grid">
+
+    <div class="variant-card">
+      <div class="variant-header"><div class="variant-name">Luenberger Observer</div></div>
+      <div class="variant-body">
+        <div class="variant-cell"><div class="variant-cell-label">L_gain</div>Fixed matrix, designed by pole placement. Constant across operating conditions.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Compute cost</div>Low — a few multiplies per cycle. Suitable for ESP32 at full update rate.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Limitations</div>Gain is fixed — not optimal at all operating points. Poor low-speed performance.</div>
+      </div>
+    </div>
+
+    <div class="variant-card">
+      <div class="variant-header"><div class="variant-name">Sliding Mode Observer (SMO)</div></div>
+      <div class="variant-body">
+        <div class="variant-cell"><div class="variant-cell-label">L_gain</div>Replaced by a switching term — gain is effectively infinite when crossing the sliding surface.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Compute cost</div>Low-medium. More robust to model error than Luenberger.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Limitations</div>Chattering at the sliding surface introduces high-frequency noise into θ_est. Requires filtering. VESC uses SMO as default.</div>
+      </div>
+    </div>
+
+    <div class="variant-card">
+      <div class="variant-header"><div class="variant-name">Extended Kalman Filter (EKF)</div></div>
+      <div class="variant-body">
+        <div class="variant-cell"><div class="variant-cell-label">L_gain</div>Computed each cycle from covariance matrices — statistically optimal given noise model.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Compute cost</div>High — matrix operations each cycle. Feasible on ESP32 but eats into cycle budget.</div>
+        <div class="variant-cell"><div class="variant-cell-label">Limitations</div>Requires tuning of process and measurement noise covariances (Q, R matrices). Best low-speed performance of the three.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SWC SKETCH -->
+<section>
+  <h2>rotor_observer — SWC Interface Sketch</h2>
+
+  <div class="swc-box">
+    <div class="swc-title">
+      <span>rotor_observer</span>
+      <span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;font-weight:400">component · inline with foc_u_guy</span>
+    </div>
+
+    <div class="swc-ports">
+      <div class="swc-port-group">
+        <div class="swc-port-label">← Inputs (each cycle)</div>
+        <div class="port"><span class="port-arrow">→</span><span class="port-name">I_abc</span><span class="port-type">float[3] — measured phase currents (A)</span></div>
+        <div class="port"><span class="port-arrow">→</span><span class="port-name">V_abc</span><span class="port-type">float[3] — applied phase voltages (V)</span></div>
+        <div class="port"><span class="port-arrow">→</span><span class="port-name">motor_params</span><span class="port-type">const struct — R, L, flux_linkage, pole_pairs</span></div>
+        <div class="port"><span class="port-arrow">→</span><span class="port-name">dt</span><span class="port-type">float — cycle period (s)</span></div>
+      </div>
+      <div class="swc-port-group">
+        <div class="swc-port-label">→ Outputs (each cycle)</div>
+        <div class="port"><span class="port-arrow">←</span><span class="port-name">theta_est</span><span class="port-type">float — electrical angle (rad)</span></div>
+        <div class="port"><span class="port-arrow">←</span><span class="port-name">omega_est</span><span class="port-type">float — electrical angular velocity (rad/s)</span></div>
+        <div class="port"><span class="port-arrow">←</span><span class="port-name">observer_valid</span><span class="port-type">bool — convergence flag</span></div>
+        <div class="port"><span class="port-arrow">←</span><span class="port-name">innovation_mag</span><span class="port-type">float — residual magnitude (diagnostic)</span></div>
+      </div>
+    </div>
+
+    <div class="swc-internals">
+      <div class="swc-int-label">Internal execution sequence (each call)</div>
+      <div class="internal-step"><div class="int-bullet"></div><span><strong>Propagate:</strong> advance θ_est, ω_est using motor model and V_abc input</span></div>
+      <div class="internal-step"><div class="int-bullet"></div><span><strong>Predict:</strong> compute I_predicted from propagated state + V_abc + motor_params</span></div>
+      <div class="internal-step"><div class="int-bullet"></div><span><strong>Innovate:</strong> compute innovation = I_abc - I_predicted</span></div>
+      <div class="internal-step"><div class="int-bullet"></div><span><strong>Correct:</strong> apply L_gain (or SMO switching term) to update θ_est, ω_est</span></div>
+      <div class="internal-step"><div class="int-bullet"></div><span><strong>Validate:</strong> set observer_valid false if innovation_mag exceeds threshold (divergence detection)</span></div>
+    </div>
+
+    <div class="swc-state">
+      <div class="state-label">Persistent state (lives between cycles)</div>
+      <div class="state-var"><span class="sv-name">θ_est</span><span class="sv-desc">current angle estimate — updated each cycle</span></div>
+      <div class="state-var"><span class="sv-name">ω_est</span><span class="sv-desc">current velocity estimate — updated each cycle</span></div>
+      <div class="state-var"><span class="sv-name">L_gain</span><span class="sv-desc">observer gain — fixed (Luenberger/SMO) or computed (EKF)</span></div>
+      <div class="state-var"><span class="sv-name">variant</span><span class="sv-desc">enum: LUENBERGER | SMO | EKF — selects internal algorithm</span></div>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:14px">
+    <strong>Placement:</strong> rotor_observer is called as a function within foc_u_guy, after monitors and before the Park transform. Its outputs (theta_est, omega_est) feed directly into the Park transform rotation matrix. observer_valid gates foc_u_buddy's state machine — if the observer hasn't converged, foc_u_buddy holds in align state and foc_u_guy runs open-loop V/f until convergence.
+  </div>
+</section>
+
+<!-- OPEN TODOS -->
+<section>
+  <h2>Open TODOs</h2>
+
+  <div class="todo">
+    <strong>TODO — Observer variant selection</strong>
+    SMO is the practical first choice (VESC precedent, low compute, good 
+robustness). EKF deferred until SMO is running and low-speed performance 
+can be evaluated. Luenberger as a stepping stone for initial bring-up only.
+  </div>
+
+  <div class="todo">
+    <strong>TODO — L_gain / SMO gain tuning procedure</strong>
+    Gain selection depends on motor parameters and desired bandwidth. Needs 
+to be designed once motor parameters are identified. For SMO: sliding 
+surface gain and chattering filter cutoff frequency are the primary knobs.
+  </div>
+
+  <div class="todo">
+    <strong>TODO — Low-speed / standstill strategy</strong>
+    Pure back-EMF observers fail below ~10–15% rated speed. Options: 
+open-loop V/f startup until observer converges, high-frequency signal 
+injection (for salient motors), or hybrid scheme. To be evaluated 
+during test board phase once current sensing is validated.
+  </div>
+
+  <div class="todo">
+    <strong>TODO — observer_valid convergence criterion</strong>
+    Threshold on innovation_mag is a simple divergence detector but needs 
+calibration. Consider also a convergence timer (N consecutive cycles below 
+threshold before declaring valid) to avoid false positives during startup 
+transient.
+  </div>
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bridge Driver &amp; SVM Orchestrator — SW Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111418;
+    --surface2: #181c22;
+    --border: #222830;
+    --border2: #2e3640;
+    --text: #dde4ee;
+    --muted: #6b7a8d;
+    --accent: #3b8eff;
+    --accent2: #00c896;
+    --warn: #f0a030;
+    --danger: #e84040;
+    --purple: #a070ff;
+    --todo: #ff6a30;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 32px 20px;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+  }
+
+  header p { color: var(--muted); margin-top: 6px; font-size: 12px; }
+
+  section { margin-bottom: 48px; }
+
+  section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .tag-rt  { background: #1a2e22; color: var(--accent2); border: 1px solid #2a4e3a; }
+  .tag-svm { background: #2a1a3a; color: var(--purple);  border: 1px solid #3e2a5a; }
+  .tag-hw  { background: #1a1e2a; color: var(--muted);   border: 1px solid #2e3848; }
+  .tag-todo{ background: #2e1a0a; color: var(--todo);    border: 1px solid #4e2a10; }
+
+  /* Component cards */
+  .component-grid { display: grid; gap: 14px; }
+
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .comp-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comp-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .comp-body { padding: 14px; }
+
+  .comp-section {
+    margin-bottom: 12px;
+  }
+
+  .comp-section:last-child { margin-bottom: 0; }
+
+  .comp-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .comp-text {
+    font-size: 11px;
+    color: #aab8c8;
+    line-height: 1.6;
+  }
+
+  code {
+    background: #1a2030;
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #a0c8ff;
+  }
+
+  /* Interface table */
+  .iface-grid { display: grid; gap: 10px; }
+
+  .iface-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+    font-size: 11px;
+  }
+
+  .iface-row.header { background: var(--surface2); border-color: var(--border2); }
+
+  .iface-cell { background: var(--surface); padding: 8px 12px; }
+
+  .iface-row.header .iface-cell {
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+
+  .iface-name { font-weight: 700; color: #fff; margin-bottom: 2px; }
+  .iface-sub  { color: var(--muted); font-size: 10px; }
+
+  /* Signal flow */
+  .flow-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 24px;
+    overflow-x: auto;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    min-width: 500px;
+  }
+
+  .flow-block {
+    border-radius: 5px;
+    padding: 8px 14px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 110px;
+  }
+
+  .fb-foc    { background: #1a1030; border: 1px solid #3a2060; color: var(--purple); }
+  .fb-svm    { background: #101830; border: 1px solid #203060; color: var(--accent); }
+  .fb-bridge { background: #0e2820; border: 1px solid #1e4838; color: var(--accent2); }
+  .fb-hw     { background: #1a1e2a; border: 1px solid #2e3848; color: var(--muted); }
+
+  .arrow      { color: var(--border2); font-size: 16px; padding: 0 6px; flex-shrink: 0; }
+  .arrow-down { text-align: center; color: var(--border2); font-size: 14px; line-height: 1; margin: 4px 0; }
+  .flow-label { font-size: 10px; color: var(--muted); text-align: center; margin: 2px 0; font-style: italic; }
+  .flow-section-label {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    text-align: center; margin: 14px 0 6px;
+  }
+
+  /* Reuse table */
+  .reuse-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+
+  .reuse-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border2);
+  }
+
+  .reuse-table td {
+    padding: 8px 12px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    color: #aab8c8;
+    vertical-align: top;
+  }
+
+  .reuse-table td:first-child { color: var(--accent2); font-weight: 700; }
+
+  /* TODO / notes */
+  .todo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--todo);
+    border-radius: 0 5px 5px 0;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #aab8c8;
+    margin-bottom: 8px;
+  }
+
+  .todo strong { color: var(--todo); display: block; margin-bottom: 3px; font-size: 11px; }
+
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 5px 5px 0;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #aab8c8;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .iface-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Bridge Driver &amp; SVM Orchestrator</h1>
+  <p>SW Architecture detail · child document of Motor Driver Architecture · Revision 0.1</p>
+</header>
+
+<!-- COMPONENT BREAKDOWN -->
+<section>
+  <h2>Component Breakdown</h2>
+  <div class="component-grid">
+
+    <div class="comp-card">
+      <div class="comp-header">
+        <div class="comp-name">svm_orchestrator</div>
+        <span class="tag tag-svm">Coordinator</span>
+      </div>
+      <div class="comp-body">
+        <div class="comp-section">
+          <div class="comp-label">Responsibility</div>
+          <div class="comp-text">
+            Receives a voltage vector command <code>(V_alpha, V_beta)</code> normalized to [-1, +1] from foc_u_guy. Determines the SVM sector, computes dwell times for the two active vectors and the zero vector, and derives per-phase duty cycles. Writes all three <code>bridge_cmd_t</code> structs atomically before any BridgeDriver consumes them.
+          </div>
+        </div>
+        <div class="comp-section">
+          <div class="comp-label">Inputs</div>
+          <div class="comp-text"><code>svm_cmd_t</code> — V_alpha, V_beta (float, normalized), V_dc (for scaling)</div>
+        </div>
+        <div class="comp-section">
+          <div class="comp-label">Outputs</div>
+          <div class="comp-text"><code>bridge_cmd_t[3]</code> — duty cycle + enable for phases A, B, C. Written atomically via shadow register pattern before commit trigger.</div>
+        </div>
+        <div class="comp-section">
+          <div class="comp-label">Notes</div>
+          <div class="comp-text">
+            Only instantiated for 3-phase motor types (BLDC, PMSM). Bypassed entirely for brushed DC (foc_u_guy writes directly to a single BridgeDriver) and stepper (separate orchestrator per winding pair). This is the sole component that has visibility across all three phases simultaneously — no other component should compute cross-phase duty relationships.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comp-card">
+      <div class="comp-header">
+        <div class="comp-name">bridge_driver</div>
+        <span class="tag tag-rt">Realtime · ×N instances</span>
+      </div>
+      <div class="comp-body">
+        <div class="comp-section">
+          <div class="comp-label">Responsibility</div>
+          <div class="comp-text">
+            Owns one half-bridge. Accepts a <code>bridge_cmd_t</code> (duty, enable, brake). Applies dead time insertion. Writes high-side and low-side duty to PWM peripheral. Responds to gate kill signal from Fault_Responder by immediately disabling both outputs regardless of pending commands.
+          </div>
+        </div>
+        <div class="comp-section">
+          <div class="comp-label">Inputs</div>
+          <div class="comp-text">
+            <code>bridge_cmd_t</code> — duty (float 0–1), enable (bool), brake (bool)<br>
+            <code>gate_kill</code> — direct fault line from Fault_Responder, checked each cycle before any PWM write
+          </div>
+        </div>
+        <div class="comp-section">
+          <div class="comp-label">Outputs</div>
+          <div class="comp-text">PWM signals to LTC7066 HIN and LIN pins. No software output — purely a hardware actuator.</div>
+        </div>
+        <div class="comp-section">
+          <div class="comp-label">What it does NOT know</div>
+          <div class="comp-text">
+            It has no knowledge of which phase it is, what motor topology is in use, or what any other bridge_driver instance is doing. All cross-phase coordination is the orchestrator's responsibility.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SIGNAL FLOW -->
+<section>
+  <h2>Signal Flow</h2>
+  <div class="flow-diagram">
+
+    <div class="flow-section-label">From control loop</div>
+    <div class="flow-row">
+      <div class="flow-block fb-foc">foc_u_guy<br><span style="font-size:9px;color:#8060c0">V_alpha, V_beta</span></div>
+      <div class="arrow">→</div>
+      <div class="flow-block fb-svm">svm_orchestrator<br><span style="font-size:9px;color:#6080c0">sector + dwell times</span></div>
+    </div>
+
+    <div class="arrow-down">↓ bridge_cmd_t[A,B,C] — atomic commit</div>
+
+    <div class="flow-section-label">Per-phase actuation</div>
+    <div class="flow-row">
+      <div class="flow-block fb-bridge">bridge_driver[A]<br><span style="font-size:9px;color:#40a080">dead time · PWM</span></div>
+      <div class="arrow" style="color:transparent">·</div>
+      <div class="flow-block fb-bridge">bridge_driver[B]<br><span style="font-size:9px;color:#40a080">dead time · PWM</span></div>
+      <div class="arrow" style="color:transparent">·</div>
+      <div class="flow-block fb-bridge">bridge_driver[C]<br><span style="font-size:9px;color:#40a080">dead time · PWM</span></div>
+    </div>
+
+    <div class="arrow-down">↓ HIN / LIN</div>
+
+    <div class="flow-section-label">Hardware</div>
+    <div class="flow-row">
+      <div class="flow-block fb-hw">LTC7066 ×3<br><span style="font-size:9px;color:var(--muted)">gate drivers</span></div>
+      <div class="arrow">→</div>
+      <div class="flow-block fb-hw">FET half-bridges ×3<br><span style="font-size:9px;color:var(--muted)">motor phases</span></div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <strong style="color:var(--accent)">Atomic commit requirement:</strong> svm_orchestrator must write all three <code>bridge_cmd_t</code> structs and then issue a single commit before any BridgeDriver reads. If BridgeDriver[A] sees a new duty while B and C still hold old values, a spurious voltage vector is applied for one PWM cycle. Implementation: shadow register pattern — orchestrator writes to pending structs, single commit flag triggers all three reads simultaneously. Whether LEDC/RMT supports hardware-level sync across channels needs to be verified (see TODO below).
+  </div>
+</section>
+
+<!-- INTERFACES -->
+<section>
+  <h2>Data Structures &amp; Interfaces</h2>
+  <div class="iface-grid">
+
+    <div class="iface-row header">
+      <div class="iface-cell">Struct</div>
+      <div class="iface-cell">Producer → Consumer</div>
+      <div class="iface-cell">Notes</div>
+    </div>
+
+    <div class="iface-row">
+      <div class="iface-cell">
+        <div class="iface-name">svm_cmd_t</div>
+        <div class="iface-sub">V_alpha, V_beta, V_dc</div>
+      </div>
+      <div class="iface-cell">foc_u_guy → svm_orchestrator</div>
+      <div class="iface-cell">Same-task write, no sync needed. Normalized floats. V_dc passed for modulation index calculation.</div>
+    </div>
+
+    <div class="iface-row">
+      <div class="iface-cell">
+        <div class="iface-name">bridge_cmd_t</div>
+        <div class="iface-sub">duty [0–1], enable, brake</div>
+      </div>
+      <div class="iface-cell">svm_orchestrator → bridge_driver ×3</div>
+      <div class="iface-cell">Shadow register pattern. Orchestrator writes all three, then sets commit flag. BridgeDrivers latch on commit. For brushed DC: foc_u_guy writes directly to one bridge_driver, bypassing orchestrator.</div>
+    </div>
+
+    <div class="iface-row">
+      <div class="iface-cell">
+        <div class="iface-name">gate_kill</div>
+        <div class="iface-sub">atomic bool / GPIO</div>
+      </div>
+      <div class="iface-cell">Fault_Responder → bridge_driver ×N</div>
+      <div class="iface-cell">Checked at top of each BridgeDriver update before any PWM write. Can also be a direct GPIO to LTC7066 enable pin for hardware-speed response independent of firmware.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- REUSE ACROSS MOTOR TYPES -->
+<section>
+  <h2>Reuse Across Motor Topologies</h2>
+  <table class="reuse-table">
+    <tr>
+      <th>Motor Type</th>
+      <th>Orchestrator</th>
+      <th>bridge_driver instances</th>
+      <th>Notes</th>
+    </tr>
+    <tr>
+      <td>BLDC / PMSM</td>
+      <td>svm_orchestrator</td>
+      <td>3 (phases A, B, C)</td>
+      <td>Full SVM sector switching. All instances coordinated.</td>
+    </tr>
+    <tr>
+      <td>Brushed DC</td>
+      <td>none — direct</td>
+      <td>1 (H-bridge = 2 half-bridges, or just 1)</td>
+      <td>foc_u_guy writes duty directly to bridge_driver. Simple PI on current. svm_orchestrator not instantiated.</td>
+    </tr>
+    <tr>
+      <td>Stepper</td>
+      <td>stepper_orchestrator (TBD)</td>
+      <td>2 (winding A, winding B)</td>
+      <td>Separate orchestrator handles microstepping phase relationships. bridge_driver reused unchanged.</td>
+    </tr>
+    <tr>
+      <td>Switched reluctance</td>
+      <td>sr_sequencer (TBD)</td>
+      <td>up to 4</td>
+      <td>Unipolar switching per phase. Simpler than SVM but requires rotor position gating. bridge_driver reused.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- TODOs -->
+<section>
+  <h2>Open TODOs</h2>
+
+  <div class="todo">
+    <strong>TODO — LEDC/RMT atomic multi-channel update</strong>
+    Verify whether ESP32 LEDC or RMT peripherals support synchronised duty updates across multiple channels (i.e. all three phase duties latching on the same PWM carrier reload event). If not natively supported, shadow register pattern must be implemented in software with a commit flag polled at the top of each BridgeDriver update. Research: ESP-IDF LEDC docs, LEDC timer sync / LEDC_LSTIMER_RST, RMT simultaneous channel start.
+  </div>
+
+  <div class="todo">
+    <strong>TODO — Dead time value</strong>
+    Dead time inserted by bridge_driver between high-side off and low-side on (and vice versa). Value must be selected based on FET gate charge / drive current from LTC7066 and FET datasheet turn-on/turn-off times. To be determined once MOSFETs are selected.
+  </div>
+
+  <div class="todo">
+    <strong>TODO — LEDC vs RMT selection</strong>
+    LEDC sufficient for BLDC/PMSM/brushed DC. RMT offers more flexible waveform control needed for switched reluctance and stepper. Decision deferred to gate driver test board phase. bridge_driver abstraction should hide this choice — the PWM peripheral write is an internal implementation detail.
+  </div>
+
+</section>
+
+</body>
+</html>

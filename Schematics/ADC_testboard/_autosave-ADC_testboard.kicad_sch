@@ -2339,16 +2339,6 @@
 		)
 		(uuid "06fd37ee-1995-4638-9d95-ae8616b151ec")
 	)
-	(bus
-		(pts
-			(xy 67.31 130.81) (xy 86.36 130.81)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "09c95d4f-92b8-42cf-a965-cefad3062759")
-	)
 	(wire
 		(pts
 			(xy 86.36 99.06) (xy 96.52 99.06)
@@ -2934,17 +2924,6 @@
 			(justify left bottom)
 		)
 		(uuid "110dd24e-0ad9-4849-8e27-bf354eb31a55")
-	)
-	(label "{ADC2}"
-		(at 67.31 130.81 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "2ae1409e-ceec-492e-a23e-66d9d42441eb")
 	)
 	(label "GPO2"
 		(at 86.36 96.52 180)
